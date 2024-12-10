@@ -1,28 +1,66 @@
-'use client';
+"use client";
 
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { signUpSchema, SignUpData } from '@/validation/auth';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import Link from 'next/link';
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { signUpSchema, SignUpData } from "@/validation/auth";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import Link from "next/link";
 
 const SignUpForm = () => {
   const form = useForm<SignUpData>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
-      firstName: '',
-      lastName: '',
-      email: '',
-      password: ''
-    }
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+    },
   });
 
-  const handleSubmit = (data: SignUpData) => {
+  const handleSubmit = async (data: SignUpData) => {
     console.log(data);
-    // Handle sign-up logic here
-  }; 
+    try {
+      const response = await fetch("/api/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        throw new Error(errorResponse.error || "Sign-in failed");
+      }
+
+      const responseData = await response.json();
+      console.log("Sign-in successful:", responseData);
+
+      // Save token to local storage
+      localStorage.setItem("authToken", responseData.token);
+
+      // Show success toast
+      toast.success("Sign up Successful.");
+
+      // Redirect to dashboard after a delay
+      setTimeout(() => {
+        window.location.href = "/dashboard";
+      }, 1000);
+    } catch (error: any) {
+      console.error("Sign-in error:", error.message);
+      toast.error(error.message || "An error occurred during sign-up");    }
+  };
 
   return (
     <Form {...form}>
@@ -36,17 +74,17 @@ const SignUpForm = () => {
             <FormItem>
               <FormLabel>First Name</FormLabel>
               <FormControl>
-                <Input 
+                <Input
                   placeholder="First name"
                   {...field}
-                  value={field.value ?? ''}
+                  value={field.value ?? ""}
                 />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        
+
         <FormField
           control={form.control}
           name="lastName"
@@ -54,10 +92,10 @@ const SignUpForm = () => {
             <FormItem>
               <FormLabel>Last Name</FormLabel>
               <FormControl>
-                <Input 
+                <Input
                   placeholder="Last name"
                   {...field}
-                  value={field.value ?? ''}
+                  value={field.value ?? ""}
                 />
               </FormControl>
               <FormMessage />
@@ -72,11 +110,11 @@ const SignUpForm = () => {
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input 
+                <Input
                   placeholder="Enter your email"
                   type="email"
                   {...field}
-                  value={field.value ?? ''}
+                  value={field.value ?? ""}
                 />
               </FormControl>
               <FormMessage />
@@ -91,11 +129,11 @@ const SignUpForm = () => {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input 
+                <Input
                   placeholder="Create a password"
                   type="password"
                   {...field}
-                  value={field.value ?? ''}
+                  value={field.value ?? ""}
                 />
               </FormControl>
               <FormMessage />
@@ -106,9 +144,9 @@ const SignUpForm = () => {
         <Button type="submit" className="w-full">
           Create Account
         </Button>
-        
+
         <p className="text-center">
-          Already have an account?{' '}
+          Already have an account?{" "}
           <Link href="/signin" className="text-primary hover:underline">
             Sign in
           </Link>
