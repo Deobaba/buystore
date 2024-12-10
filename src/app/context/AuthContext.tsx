@@ -68,17 +68,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const storedToken = localStorage.getItem('authToken');
     const storedUser = localStorage.getItem('user');
     
-    if (storedToken && storedUser) {
+    if (storedToken) {
       if (isTokenExpired(storedToken)) {
         // If token is expired, logout the user
         logout();
       } else {
         setToken(storedToken);
-        setUser(JSON.parse(storedUser));
+        //setUser(JSON.parse(storedUser));
         setIsAuthenticated(true);
       }
     } else {
-      router.push('/homepage'); // Automatically redirect to login page if no token
+      router.push('/'); // Automatically redirect to login page if no token
     }
   }, [router]);
 

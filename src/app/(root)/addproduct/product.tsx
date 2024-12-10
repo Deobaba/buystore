@@ -4,9 +4,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { X } from "lucide-react";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AddProduct = () => {
   const [productName, setProductName] = React.useState("");
@@ -21,15 +35,21 @@ const AddProduct = () => {
     const files = e.target.files;
     if (!files) return;
 
-    const fileReaders: Promise<{ name: string; data: string; type: string }>[] = Array.from(files).map((file) =>
-      new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () =>
-          resolve({ name: file.name, data: reader.result as string, type: file.type });
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      })
-    );
+    const fileReaders: Promise<{ name: string; data: string; type: string }>[] =
+      Array.from(files).map(
+        (file) =>
+          new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () =>
+              resolve({
+                name: file.name,
+                data: reader.result as string,
+                type: file.type,
+              });
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+          })
+      );
 
     Promise.all(fileReaders)
       .then((uploadedFiles) => {
@@ -44,13 +64,19 @@ const AddProduct = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("button works")
+    console.log("button works");
+
+    if(productName == "" || description == "" || price == "" || category == "" || sellerInfo == "" || externalLink == "" ){
+      toast.error("All fields are compulsory");
+      return;
+    }
+
     try {
       const response = await fetch("/api/products", {
         method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           productName,
           description,
@@ -62,7 +88,7 @@ const AddProduct = () => {
         }),
       });
 
-      console.log('it got here ...',response)
+      console.log("it got here ...", response);
 
       if (!response.ok) {
         throw new Error("Failed to add product");
@@ -70,6 +96,14 @@ const AddProduct = () => {
 
       const data = await response.json();
       console.log("Product added successfully:", data);
+
+      // Show success toast
+      toast.success("Product added successfully");
+
+      // Redirect to dashboard after a delay
+      setTimeout(() => {
+        window.location.href = "/dashboard";
+      }, 1000);
 
       // Reset form fields
       setProductName("");
@@ -79,10 +113,9 @@ const AddProduct = () => {
       setSellerInfo("");
       setExternalLink("");
       setImages([]);
-
     } catch (error) {
       console.error(error);
-      alert("An error occurred while adding the product");
+      toast.error("An error occurred while adding the product");
     }
   };
 
