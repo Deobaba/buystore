@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongoose";
 import Product from "@/lib/product";
 
-
+export const dynamic = "force-dynamic"; // Prevent static optimization
 
 // Get product by ID
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
