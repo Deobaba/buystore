@@ -118,7 +118,7 @@ const ProductPage = ({ id }: Props) => {
         <div className="container mx-auto px-4 py-4">
           <Link
             href="/"
-            className="inline-flex items-center text-sm text-gray-600 hover:text-purple-600"
+            className="inline-flex items-center text-sm text-gray-600 hover:text-[#350962]"
           >
             <ChevronLeft className="h-4 w-4 mr-1" />
             Back to Home
@@ -151,7 +151,7 @@ const ProductPage = ({ id }: Props) => {
                   onClick={() => setCurrentImageIndex(index)}
                   className={`w-16 h-16 rounded-md overflow-hidden border-2 ${
                     index === currentImageIndex
-                      ? "border-purple-600"
+                      ? "border-[#350962]"
                       : "border-transparent"
                   }`}
                 >
@@ -196,7 +196,7 @@ const ProductPage = ({ id }: Props) => {
             {/* <Button size="lg" className="w-full mb-4">
               View on {product.seller}'s Site
             </Button> */}
-            <Button size="lg" className="w-full mb-4">
+            <Button size="lg" className="w-full mb-4 bg-[#350962]">
               View on seller's Site
             </Button>
             <Button variant="outline" size="lg" className="w-full mb-6">
@@ -240,7 +240,7 @@ const ProductPage = ({ id }: Props) => {
                   <p className="font-bold text-lg mt-2">{product.price}</p>
                 </CardContent>
                 <CardFooter>
-                  <Button variant="outline" className="w-full">
+                  <Button variant="outline" className="w-full hover:bg-[#350962] hover:text-[#ffffff]">
                     View Details
                   </Button>
                 </CardFooter>
