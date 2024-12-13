@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Image from 'next/image';
 
 import {
   Form,
@@ -60,20 +61,25 @@ const SignInForm = () => {
       setTimeout(() => {
         window.location.href = "/dashboard";
       }, 1000);
-
-
     } catch (error: any) {
       console.error("Sign-in error:", error.message);
       //alert(error.message || "An error occurred during sign-in");
       toast.error(error.message || "An error occurred during sign-in");
-
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="flex justify-center items-center mt-20 max-w-md mx-auto border rounded-lg p-12 md:p-24 shadow-md bg-white">
+    <div className="flex flex-col justify-center items-center mt-20 max-w-md mx-auto border rounded-lg p-12 md:p-24 shadow-md bg-white">
+      <Image
+        src="/assets/images/Logo3.jpg"
+        alt="SCAMalicious Logo"
+        width={100}
+        height={100}
+        className="mb-5"
+      />
+
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
           <h2 className="text-2xl text-center mb-4">Sign In</h2>
@@ -119,7 +125,7 @@ const SignInForm = () => {
           />
 
           {/* Submit Button */}
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button type="submit" className="w-full bg-[#350962]" disabled={isLoading}>
             {isLoading ? (
               <div className="flex items-center justify-center space-x-2">
                 <span className="loader"></span>
@@ -135,7 +141,7 @@ const SignInForm = () => {
             Don't have an account?{" "}
             <Link
               href="/signup"
-              className="text-blue-600 hover:underline text-[14px]"
+              className="text-[#E89217] hover:underline text-[14px]"
             >
               Create Account
             </Link>

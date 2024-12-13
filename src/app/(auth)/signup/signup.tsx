@@ -141,13 +141,13 @@ const SignUpForm = () => {
           )}
         />
 
-        <Button type="submit" className="w-full">
+        <Button type="submit" className="w-full bg-[#350962]">
           Create Account
         </Button>
 
         <p className="text-center">
           Already have an account?{" "}
-          <Link href="/signin" className="text-primary hover:underline">
+          <Link href="/signin" className="text-[#E89217] hover:underline">
             Sign in
           </Link>
         </p>
