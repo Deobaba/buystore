@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Card,
   CardContent,
@@ -81,13 +82,21 @@ const AdminDashboard = () => {
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
+
       <aside
         className={`bg-white w-64 min-h-screen flex flex-col ${
           isSidebarOpen ? "block" : "hidden"
         } md:block`}
       >
         <div className="p-4 border-b">
-          <h2 className="text-2xl font-semibold text-purple-600">
+          <Image
+            src="/assets/images/Logo3.jpg"
+            alt="SCAMalicious Logo"
+            width={70}
+            height={70}
+            className="mb-5 items-center ml-20 mt-5"
+          />
+          <h2 className="text-lg text-center font-semibold text-[#E89217]">
             Admin Dashboard
           </h2>
         </div>
@@ -157,7 +166,7 @@ const AdminDashboard = () => {
         {/* Dashboard Content */}
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
           <div className="container mx-auto px-6 py-8">
-            <h3 className="text-gray-700 text-3xl font-medium">Dashboard</h3>
+            <h3 className="text-gray-700 text-xl font-medium">Dashboard</h3>
 
             <div className="mt-4">
               <div className="flex flex-wrap -mx-6">
@@ -227,7 +236,7 @@ const AdminDashboard = () => {
                       className="max-w-sm"
                     />
                     <Link href="/addproduct">
-                      <Button>
+                      <Button className="text-[#ffffff] bg-[#350962]">
                         <Plus className="mr-2 h-4 w-4" /> Add Product
                       </Button>
                     </Link>

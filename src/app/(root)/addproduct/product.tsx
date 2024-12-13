@@ -223,7 +223,7 @@ const AddProduct = () => {
           </form>
         </CardContent>
         <CardFooter>
-          <Button type="submit" onClick={handleSubmit}>
+          <Button className="bg-[#350962] text-[#ffffff]" type="submit" onClick={handleSubmit}>
             Add Product
           </Button>
         </CardFooter>
