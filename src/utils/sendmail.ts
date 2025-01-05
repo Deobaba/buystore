@@ -1,18 +1,23 @@
 import axios from 'axios';
 
 // Your Brevo API key
-const API_KEY = ""
+const API_KEY = process.env.NEXT_BREVO_API_KEY;
 
 // Brevo API URL
-const API_URL = "ddd"
+const API_URL = process.env.NEXT_BREVO_API_URL;
+
+const senderEmail = process.env.NEXT_SENDER_EMAIL;
 
 // Function to send an email
  const sendEmail = async (to: string, subject: string, template: any) => {
   try {
+    if (!API_URL) {
+      throw new Error('API_URL is not defined');
+    }
     const response = await axios.post(
       API_URL,
       {
-        sender: { email: 'adexsquare4192@gmail.com' },
+        sender: { email: senderEmail },
         to: [{ email: to }],
         subject,
         // textContent: text,
