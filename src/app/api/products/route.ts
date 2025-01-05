@@ -81,7 +81,7 @@ return NextResponse.json(plainProduct, { status: 201 });
   }
 }
 
-// Get all products or filter by parameters
+// Get all products or filter by parameters with pagination
 export async function GET(req: NextRequest) {
   await dbConnect();
 
@@ -100,11 +100,29 @@ export async function GET(req: NextRequest) {
     if (maxPrice) filters.price = { ...filters.price, $lte: parseFloat(maxPrice) };
     if (sellerInfo) filters.sellerInfo = sellerInfo;
 
-    const products = await Product.find(filters).lean();
+    // Pagination parameters
+    const page = parseInt(searchParams.get("page") || "1", 10); // Default to page 1
+    const limit = parseInt(searchParams.get("limit") || "10", 10); // Default to 10 items per page
+    const skip = (page - 1) * limit;
 
-    // console.log(products)
-    return NextResponse.json(products, { status: 200 });
-  } catch (error:any) {
+    const products = await Product.find(filters)
+      .skip(skip)
+      .limit(limit)
+      .lean();
+
+    // Get total count of products for pagination metadata
+    const totalCount = await Product.countDocuments(filters);
+
+    // Construct pagination metadata
+    const pagination = {
+      totalItems: totalCount,
+      totalPages: Math.ceil(totalCount / limit),
+      currentPage: page,
+      pageSize: limit,
+    };
+
+    return NextResponse.json({ products, pagination }, { status: 200 });
+  } catch (error: any) {
     console.error("Error fetching products:", error);
     return NextResponse.json(
       { error: "Internal server error", details: error.message },
@@ -112,5 +130,6 @@ export async function GET(req: NextRequest) {
     );
   }
 }
+
 
 
