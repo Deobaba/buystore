@@ -162,7 +162,7 @@ const Homepage = () => {
                 </CardContent>
                 <CardFooter>
                   <Link href={`/product/${product._id}`}>
-                    <Button className="w-full bg-[#350962] text-[#ffffff]">View on Seller Site</Button>
+                    <Button className="w-[100px] bg-[#350962] text-[#ffffff]">Buy</Button>
                   </Link>
                 </CardFooter>
               </Card>

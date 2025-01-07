@@ -21,6 +21,8 @@ import {
 import { X } from "lucide-react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Link from "next/link";
+import { ChevronLeft, Star, Share2 } from "lucide-react";
 
 const AddProduct = () => {
   const [productName, setProductName] = React.useState("");
@@ -121,6 +123,17 @@ const AddProduct = () => {
 
   return (
     <div className="container mx-auto p-4">
+      <header className="bg-white shadow-sm">
+        <div className="container mx-auto px-4 py-4">
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center text-sm text-gray-600 hover:text-[#350962]"
+          >
+            <ChevronLeft className="h-4 w-4 mr-1" />
+            Back to Dashboard
+          </Link>
+        </div>
+      </header>
       <Card className="max-w-2xl mx-auto">
         <CardHeader>
           <CardTitle className="text-2xl font-bold">Add New Product</CardTitle>
