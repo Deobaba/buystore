@@ -55,6 +55,10 @@ const ProductPage = ({ id }: Props) => {
     );
   }
 
+  const handleThumbnailClick = (index: number) => {
+    setCurrentImageIndex(index);
+  };
+
   // const product = {
   //   name: "Wireless Noise-Cancelling Headphones",
   //   description: "Experience crystal-clear audio with our premium wireless headphones. Featuring advanced noise-cancelling technology, these headphones provide an immersive listening experience whether you're commuting, working, or relaxing at home.",
@@ -179,26 +183,41 @@ const ProductPage = ({ id }: Props) => {
                   />
                 ))} */}
 
-                {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className="text-gray-300 h-5 w-5"
-                  />
-                ))}
+                {/* {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="text-gray-300 h-5 w-5" />
+                ))} */}
               </div>
               {/* <span className="text-sm text-gray-600">
                 {product.rating} ({product.reviews} reviews)
               </span> */}
-              <span className="text-sm text-gray-600">reviews</span>
+              {/* <span className="text-sm text-gray-600">reviews</span> */}
             </div>
-            <p className="text-xl font-bold mb-4">{product.price}</p>
+            <div className="flex flex-row">
+              <p className="text-xl font-bold mb-2">₦</p>
+              <p className="text-xl font-bold mb-2">{product.price}</p>
+            </div>
+
             <p className="text-gray-600 mb-6">{product.description}</p>
             {/* <Button size="lg" className="w-full mb-4">
               View on {product.seller}'s Site
             </Button> */}
-            <Button size="lg" className="w-full mb-4 bg-[#350962]">
-              View on seller's Site
-            </Button>
+            <a
+              href={
+                product.externalLink.startsWith("http")
+                  ? product.externalLink
+                  : `https://${product.externalLink}`
+              }
+              target="_blank"
+              rel="noopener noreferrer"
+              className="no-underline"
+            >
+              <Button size="lg" className="w-full mb-4 bg-[#350962]">
+                Buy
+              </Button>
+            </a>
+            {/* <Button size="lg" className="w-full mb-4 bg-[#350962]">
+              Buy
+            </Button> */}
             <Button variant="outline" size="lg" className="w-full mb-6">
               <Share2 className="h-4 w-4 mr-2" />
               Share
@@ -213,15 +232,15 @@ const ProductPage = ({ id }: Props) => {
                 ))}
               </ul>
             </div>
-            <p className="text-sm text-gray-500">
+            {/* <p className="text-sm text-gray-500">
               Seller:{" "}
-              {/* <a
-                href={product.sellerUrl}
+              <a
+                href={product.externalLink}
                 className="text-purple-600 hover:underline"
               >
-                {product.seller}
-              </a> */}
-            </p>
+                New Seller
+              </a>
+            </p> */}
           </div>
         </div>
 
@@ -240,7 +259,10 @@ const ProductPage = ({ id }: Props) => {
                   <p className="font-bold text-lg mt-2">{product.price}</p>
                 </CardContent>
                 <CardFooter>
-                  <Button variant="outline" className="w-full hover:bg-[#350962] hover:text-[#ffffff]">
+                  <Button
+                    variant="outline"
+                    className="w-full hover:bg-[#350962] hover:text-[#ffffff]"
+                  >
                     View Details
                   </Button>
                 </CardFooter>
