@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -19,15 +19,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 const ForgotPassword = () => {
+  const [isLoading, setIsLoading] = useState(false);
 
-    const [isLoading, setIsLoading] = useState(false);
-
-    const form = useForm<ForgotPasswordData>({
-        resolver: zodResolver(forgotPasswordSchema),
-        defaultValues: {
-          email: "",
-        },
-      });
+  const form = useForm<ForgotPasswordData>({
+    resolver: zodResolver(forgotPasswordSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
 
   const handleSubmit = async (data: ForgotPasswordData) => {
     setIsLoading(true);
@@ -42,14 +41,17 @@ const ForgotPassword = () => {
 
       if (!response.ok) {
         const errorResponse = await response.json();
-        throw new Error(errorResponse.error || "Unable to send reset password code.");
+        throw new Error(
+          errorResponse.error || "Unable to send reset password code."
+        );
       }
 
       // Show success toast
-      toast.success("A code has been sent to your mail to reset your password.");
+      toast.success(
+        "A code has been sent to your mail to reset your password."
+      );
 
       // Redirect to dashboard after a delay
-      
     } catch (error: any) {
       console.error("Forgot-password error:", error.message);
       //alert(error.message || "An error occurred during sign-in");
@@ -72,7 +74,9 @@ const ForgotPassword = () => {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
           <h2 className="text-xl text-center mb-4">Forgot Password</h2>
-          <p className="text-[12px] text-center mb-3">Enter your email in the field below to reset your password.</p>
+          <p className="text-[12px] text-center mb-3">
+            Enter your email in the field below to reset your password.
+          </p>
 
           {/* Email Field */}
           <FormField
@@ -94,7 +98,6 @@ const ForgotPassword = () => {
             )}
           />
 
-
           {/* Submit Button */}
           <Button
             type="submit"
@@ -104,7 +107,7 @@ const ForgotPassword = () => {
             {isLoading ? (
               <div className="flex items-center justify-center space-x-2">
                 <span className="loader"></span>
-                <span>Signing In...</span>
+                <span>Generating reset code...</span>
               </div>
             ) : (
               "Forgot Password"

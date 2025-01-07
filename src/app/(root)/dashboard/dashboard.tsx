@@ -38,6 +38,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Product } from "@/lib/product";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AdminDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
@@ -100,6 +102,33 @@ const AdminDashboard = () => {
 
     fetchProducts();
   }, []);
+
+  // Delete item from the table
+
+  const handleDelete = async (id: any) => {
+    try {
+      const response = await fetch(`/api/products/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to delete product");
+      }
+
+      // Remove the deleted product from the state
+      setFeaturedProducts((prevProducts) =>
+        prevProducts.filter((product) => product._id !== id)
+      );
+
+      console.log("Product deleted successfully");
+
+      toast.success("Product deleted successfully.");
+    } catch (error: any) {
+      console.error("Error deleting product:", error.message);
+      toast.error(error.message || "Error deleting product.");
+    }
+  };
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -291,10 +320,19 @@ const AdminDashboard = () => {
                           <TableCell>{product.price}</TableCell>
                           <TableCell>{product.description}</TableCell>
                           <TableCell>
-                            <Button variant="ghost" size="sm">
+                            <Link href={`/dashboard/${product._id}`}>
+                              <Button variant="ghost" size="sm">
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                            </Link>
+                            {/* <Button variant="ghost" size="sm">
                               <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm">
+                            </Button> */}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDelete(product._id)}
+                            >
                               <Trash className="h-4 w-4" />
                             </Button>
                           </TableCell>
