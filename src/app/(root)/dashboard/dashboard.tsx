@@ -37,9 +37,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Product } from "@/lib/product";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AdminDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+  const [featuredProducts, setFeaturedProducts] = React.useState<Product[]>([]);
+  const [loading, setLoading] = React.useState(true);
 
   const products = [
     {
@@ -79,6 +84,52 @@ const AdminDashboard = () => {
     },
   ];
 
+  React.useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch("/api/products"); // Replace with your actual endpoint URL
+        if (!response.ok) {
+          throw new Error("Failed to fetch products");
+        }
+        const data = await response.json();
+        setFeaturedProducts(data.products); // Assuming the response contains an array of products
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  // Delete item from the table
+
+  const handleDelete = async (id: any) => {
+    try {
+      const response = await fetch(`/api/products/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to delete product");
+      }
+
+      // Remove the deleted product from the state
+      setFeaturedProducts((prevProducts) =>
+        prevProducts.filter((product) => product._id !== id)
+      );
+
+      console.log("Product deleted successfully");
+
+      toast.success("Product deleted successfully.");
+    } catch (error: any) {
+      console.error("Error deleting product:", error.message);
+      toast.error(error.message || "Error deleting product.");
+    }
+  };
+
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
@@ -107,6 +158,14 @@ const AdminDashboard = () => {
                 <BarChart className="mr-2 h-4 w-4" />
                 Dashboard
               </Button>
+            </li>
+            <li>
+              <Link href="/change-password">
+                <Button variant="ghost" className="w-full justify-start mt-2">
+                  <Users className="mr-2 h-4 w-4" />
+                  Change Password
+                </Button>
+              </Link>
             </li>
             {/* <li>
               <Button variant="ghost" className="w-full justify-start">
@@ -247,24 +306,33 @@ const AdminDashboard = () => {
                         <TableHead>Name</TableHead>
                         <TableHead>Category</TableHead>
                         <TableHead>Price</TableHead>
-                        <TableHead>Stock</TableHead>
+                        <TableHead>Description</TableHead>
                         <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {products.map((product) => (
-                        <TableRow key={product.id}>
+                      {featuredProducts.map((product, index) => (
+                        <TableRow key={index}>
                           <TableCell className="font-medium">
                             {product.name}
                           </TableCell>
                           <TableCell>{product.category}</TableCell>
                           <TableCell>{product.price}</TableCell>
-                          <TableCell>{product.stock}</TableCell>
+                          <TableCell>{product.description}</TableCell>
                           <TableCell>
-                            <Button variant="ghost" size="sm">
+                            <Link href={`/dashboard/${product._id}`}>
+                              <Button variant="ghost" size="sm">
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                            </Link>
+                            {/* <Button variant="ghost" size="sm">
                               <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="sm">
+                            </Button> */}
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDelete(product._id)}
+                            >
                               <Trash className="h-4 w-4" />
                             </Button>
                           </TableCell>

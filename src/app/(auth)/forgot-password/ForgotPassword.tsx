@@ -4,13 +4,12 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signInSchema, SignInData } from "@/validation/auth";
+import { forgotPasswordSchema, ForgotPasswordData } from "@/validation/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Image from "next/image";
-
 import {
   Form,
   FormControl,
@@ -19,23 +18,20 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
-const SignInForm = () => {
+const ForgotPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
 
-  const form = useForm<SignInData>({
-    resolver: zodResolver(signInSchema),
+  const form = useForm<ForgotPasswordData>({
+    resolver: zodResolver(forgotPasswordSchema),
     defaultValues: {
       email: "",
-      password: "",
     },
   });
 
-  const handleSubmit = async (data: SignInData) => {
+  const handleSubmit = async (data: ForgotPasswordData) => {
     setIsLoading(true);
-
     try {
-      const response = await fetch("/api/signin", {
+      const response = await fetch("/api/forgot-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -45,26 +41,21 @@ const SignInForm = () => {
 
       if (!response.ok) {
         const errorResponse = await response.json();
-        throw new Error(errorResponse.error || "Sign-in failed");
+        throw new Error(
+          errorResponse.error || "Unable to send reset password code."
+        );
       }
 
-      const responseData = await response.json();
-      console.log("Sign-in successful:", responseData);
-
-      // Save token to local storage
-      localStorage.setItem("authToken", responseData.token);
-
       // Show success toast
-      toast.success("Login Successful.Welcome back!");
+      toast.success(
+        "A code has been sent to your mail to reset your password."
+      );
 
       // Redirect to dashboard after a delay
-      setTimeout(() => {
-        window.location.href = "/dashboard";
-      }, 1000);
     } catch (error: any) {
-      console.error("Sign-in error:", error.message);
+      console.error("Forgot-password error:", error.message);
       //alert(error.message || "An error occurred during sign-in");
-      toast.error(error.message || "An error occurred during sign-in");
+      toast.error(error.message || "An error occurred.");
     } finally {
       setIsLoading(false);
     }
@@ -75,14 +66,17 @@ const SignInForm = () => {
       <Image
         src="/assets/images/Logo3.jpg"
         alt="SCAMalicious Logo"
-        width={100}
-        height={100}
+        width={80}
+        height={80}
         className="mb-5"
       />
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-          <h2 className="text-2xl text-center mb-4">Sign In</h2>
+          <h2 className="text-xl text-center mb-4">Forgot Password</h2>
+          <p className="text-[12px] text-center mb-3">
+            Enter your email in the field below to reset your password.
+          </p>
 
           {/* Email Field */}
           <FormField
@@ -104,34 +98,6 @@ const SignInForm = () => {
             )}
           />
 
-          {/* Password Field */}
-          <FormField
-            control={form.control}
-            name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    value={field.value ?? ""}
-                    type="password"
-                    placeholder="Enter your password"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          {/* forgot password? */}
-          <Link
-            href="/forgot-password"
-            className="text-[#E89217] hover:underline text-[13px] my-1"
-          >
-            Forgot Password?
-          </Link>
-
           {/* Submit Button */}
           <Button
             type="submit"
@@ -141,27 +107,16 @@ const SignInForm = () => {
             {isLoading ? (
               <div className="flex items-center justify-center space-x-2">
                 <span className="loader"></span>
-                <span>Signing In...</span>
+                <span>Generating reset code...</span>
               </div>
             ) : (
-              "Sign In"
+              "Forgot Password"
             )}
           </Button>
-
-          {/* Link to Signup */}
-          <p className="text-center text-[12px]">
-            Don't have an account?{" "}
-            <Link
-              href="/signup"
-              className="text-[#E89217] hover:underline text-[14px]"
-            >
-              Create Account
-            </Link>
-          </p>
         </form>
       </Form>
     </div>
   );
 };
 
-export default SignInForm;
+export default ForgotPassword;

@@ -9,6 +9,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const { email } = await req.json();
+    console.log("My email:", email)
 
     if (!email) {
       return NextResponse.json(
