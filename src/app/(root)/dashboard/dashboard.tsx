@@ -37,9 +37,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Product } from "@/lib/product";
 
 const AdminDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+  const [featuredProducts, setFeaturedProducts] = React.useState<Product[]>([]);
+  const [loading, setLoading] = React.useState(true);
 
   const products = [
     {
@@ -79,6 +82,25 @@ const AdminDashboard = () => {
     },
   ];
 
+  React.useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch("/api/products"); // Replace with your actual endpoint URL
+        if (!response.ok) {
+          throw new Error("Failed to fetch products");
+        }
+        const data = await response.json();
+        setFeaturedProducts(data.products); // Assuming the response contains an array of products
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
@@ -107,6 +129,14 @@ const AdminDashboard = () => {
                 <BarChart className="mr-2 h-4 w-4" />
                 Dashboard
               </Button>
+            </li>
+            <li>
+              <Link href="/change-password">
+                <Button variant="ghost" className="w-full justify-start mt-2">
+                  <Users className="mr-2 h-4 w-4" />
+                  Change Password
+                </Button>
+              </Link>
             </li>
             {/* <li>
               <Button variant="ghost" className="w-full justify-start">
@@ -247,19 +277,19 @@ const AdminDashboard = () => {
                         <TableHead>Name</TableHead>
                         <TableHead>Category</TableHead>
                         <TableHead>Price</TableHead>
-                        <TableHead>Stock</TableHead>
+                        <TableHead>Description</TableHead>
                         <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {products.map((product) => (
-                        <TableRow key={product.id}>
+                      {featuredProducts.map((product, index) => (
+                        <TableRow key={index}>
                           <TableCell className="font-medium">
                             {product.name}
                           </TableCell>
                           <TableCell>{product.category}</TableCell>
                           <TableCell>{product.price}</TableCell>
-                          <TableCell>{product.stock}</TableCell>
+                          <TableCell>{product.description}</TableCell>
                           <TableCell>
                             <Button variant="ghost" size="sm">
                               <Edit className="h-4 w-4" />
