@@ -29,63 +29,81 @@ const Homepage = () => {
   const [featuredProducts, setFeaturedProducts] = React.useState<Product[]>([]);
   const [loading, setLoading] = React.useState(true);
 
+  const [selectedCategory, setSelectedCategory] = React.useState<string | null>(
+    null
+  );
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [pagination, setPagination] = React.useState({
+    totalItems: 0,
+    totalPages: 0,
+    currentPage: 1,
+    pageSize: 8,
+  });
+
   const categories = [
-    { name: "Electronics", icon: Smartphone },
+    { name: "electronics", icon: Smartphone },
     { name: "Home & Kitchen", icon: Home },
-    { name: "Fashion", icon: Shirt },
+    { name: "Clothing", icon: Shirt },
     { name: "Beauty", icon: Sparkles },
     { name: "Sports & Outdoors", icon: Dumbbell },
   ];
 
-  React.useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch("/api/products"); // Replace with your actual endpoint URL
-        if (!response.ok) {
-          throw new Error("Failed to fetch products");
-        }
-        const data: Product[] = await response.json();
-        setFeaturedProducts(data); // Assuming the response contains an array of products
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-        setLoading(false);
+  // React.useEffect(() => {
+  //   const fetchProducts = async () => {
+  //     try {
+  //       const response = await fetch("/api/products");
+  //       if (!response.ok) {
+  //         throw new Error("Failed to fetch products");
+  //       }
+
+  //       const data = await response.json();
+  //       setFeaturedProducts(data.products);
+  //       setLoading(false);
+  //     } catch (error) {
+  //       console.error("Error fetching products:", error);
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchProducts();
+  // }, []);
+
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const queryParams = new URLSearchParams({
+        ...(selectedCategory && { category: selectedCategory }),
+        page: currentPage.toString(),
+        limit: pagination.pageSize.toString(),
+      });
+
+      const response = await fetch(`/api/products?${queryParams}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch products");
       }
-    };
 
+      const data = await response.json();
+      setFeaturedProducts(data.products);
+      setPagination(data.pagination);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [selectedCategory, currentPage]);
 
-  // const featuredProductss = [
-  //   {
-  //     name: "Wireless Earbuds",
-  //     description: "High-quality sound with long battery life",
-  //     price: "$49.99",
-  //     image: "https://res.cloudinary.com/dlbwktrdc/image/upload/v1718971907/rdma8kzugnfje6zrk4gc.jpg",
-  //     seller: "TechGadgets",
-  //   },
-  //   {
-  //     name: "Smart Home Hub",
-  //     description: "Control your entire home with voice commands",
-  //     price: "$129.99",
-  //     image: "https://res.cloudinary.com/dlbwktrdc/image/upload/v1699371470/cld-sample.jpg",
-  //     seller: "SmartLiving",
-  //   },
-  //   {
-  //     name: "Fitness Tracker",
-  //     description: "Monitor your health and activity 24/7",
-  //     price: "$79.99",
-  //     image: "https://res.cloudinary.com/dlbwktrdc/image/upload/v1699371469/samples/woman-on-a-football-field.jpg",
-  //     seller: "FitTech",
-  //   },
-  //   {
-  //     name: "Portable Blender",
-  //     description: "Make smoothies on-the-go with ease",
-  //     price: "$39.99",
-  //     image:"https://res.cloudinary.com/dlbwktrdc/image/upload/v1699371469/samples/dessert-on-a-plate.jpg",
-  //     seller: "HealthyLife",
-  //   },
-  // ]
+  const handleCategoryClick = (category: string | null) => {
+    setSelectedCategory(category);
+    setCurrentPage(1); // Reset to first page on category change
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
+  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -144,33 +162,66 @@ const Homepage = () => {
           <h2 className="text-xl font-bold mb-4">Featured Products</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {featuredProducts.map((product, index) => (
-              <Card key={index}>
-                <CardContent className="p-4">
-                  <img
-                    src={product.images[0]}
-                    alt={product.name}
-                    className="w-full h-48 object-cover mb-4 rounded"
-                  />
-                  <CardTitle>{product.name}</CardTitle>
-                  <p className="text-sm text-gray-600 mt-2">
-                    {product.description}
-                  </p>
-                  <p className="font-bold text-lg mt-2">{product.price}</p>
-                  <p className="text-sm text-gray-500 mt-1">
-                    Seller: {product.sellerInfo}
-                  </p>
-                </CardContent>
-                <CardFooter>
-                  <Link href={`/product/${product._id}`}>
-                    <Button className="w-[100px] bg-[#350962] text-[#ffffff]">Buy</Button>
-                  </Link>
-                </CardFooter>
-              </Card>
+              <Link href={`/product/${product._id}`}>
+                <Card key={index}>
+                  <CardContent className="p-4">
+                    <img
+                      src={product.images[0]}
+                      alt={product.name}
+                      className="w-full h-48 object-cover mb-4 rounded"
+                    />
+                    <CardTitle>{product.name}</CardTitle>
+                    <p className="text-sm text-gray-600 mt-2">
+                      {product.description}
+                    </p>
+                    <p className="font-bold text-lg mt-2">{product.price}</p>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Seller: {product.sellerInfo}
+                    </p>
+                  </CardContent>
+                  <CardFooter>
+                    <Link
+                      href={
+                        product.externalLink.startsWith("http")
+                          ? product.externalLink
+                          : `https://${product.externalLink}`
+                      }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="no-underline"
+                    >
+                      <Button className="w-[100px] bg-[#350962] text-[#ffffff]">
+                        Buy
+                      </Button>
+                    </Link>
+                  </CardFooter>
+                </Card>
+              </Link>
             ))}
           </div>
         </section>
 
-        <section>
+        <section className="mt-8 flex flex-col justify-end items-end">
+          <h2 className="text-lg font-bold mb-4">Pagination</h2>
+          <div className="flex justify-end">
+            <div className="flex space-x-2">
+              {Array.from(
+                { length: pagination.totalPages },
+                (_, i) => i + 1
+              ).map((page) => (
+                <Button
+                  key={page}
+                  variant={page === currentPage ? "default" : "outline"}
+                  onClick={() => handlePageChange(page)}
+                >
+                  {page}
+                </Button>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* <section>
           <h2 className="text-xl font-bold mb-6">Shop by Category</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
             {categories.map((category, index) => (
@@ -183,6 +234,60 @@ const Homepage = () => {
                     <category.icon className="h-8 w-8 text-[#350962]" />
                   </div>
                   <CardTitle className="text-lg group-hover:text-[#350962] transition-colors duration-300">
+                    {category.name}
+                  </CardTitle>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </section> */}
+
+        <section>
+          <h2 className="text-xl font-bold mb-6">Shop by Category</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
+            {/* All Categories Card */}
+            <Card
+              onClick={() => handleCategoryClick(null)}
+              className={`group hover:shadow-lg transition-shadow duration-300 cursor-pointer ${
+                selectedCategory === null ? "border-2 border-purple-500" : ""
+              }`}
+            >
+              <CardContent className="p-6 flex flex-col items-center text-center">
+                <div className="mb-4 p-4 bg-purple-100 rounded-full group-hover:bg-purple-200 transition-colors duration-300">
+                  <span className="h-8 w-8 text-[#350962]">All</span>
+                </div>
+                <CardTitle
+                  className={`text-lg group-hover:text-[#350962] transition-colors duration-300 ${
+                    selectedCategory === null ? "text-purple-500" : ""
+                  }`}
+                >
+                  All
+                </CardTitle>
+              </CardContent>
+            </Card>
+
+            {/* Dynamic Category Cards */}
+            {categories.map((category, index) => (
+              <Card
+                key={index}
+                onClick={() => handleCategoryClick(category.name)}
+                className={`group hover:shadow-lg transition-shadow duration-300 cursor-pointer ${
+                  selectedCategory === category.name
+                    ? "border-2 border-purple-500"
+                    : ""
+                }`}
+              >
+                <CardContent className="p-6 flex flex-col items-center text-center">
+                  <div className="mb-4 p-4 bg-purple-100 rounded-full group-hover:bg-purple-200 transition-colors duration-300">
+                    <category.icon className="h-8 w-8 text-[#350962]" />
+                  </div>
+                  <CardTitle
+                    className={`text-lg group-hover:text-[#350962] transition-colors duration-300 ${
+                      selectedCategory === category.name
+                        ? "text-purple-500"
+                        : ""
+                    }`}
+                  >
                     {category.name}
                   </CardTitle>
                 </CardContent>

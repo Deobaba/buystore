@@ -45,6 +45,13 @@ const AdminDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
   const [featuredProducts, setFeaturedProducts] = React.useState<Product[]>([]);
   const [loading, setLoading] = React.useState(true);
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [pagination, setPagination] = React.useState({
+    totalItems: 0,
+    totalPages: 0,
+    currentPage: 1,
+    pageSize: 5,
+  });
 
   const products = [
     {
@@ -84,24 +91,32 @@ const AdminDashboard = () => {
     },
   ];
 
-  React.useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch("/api/products"); // Replace with your actual endpoint URL
-        if (!response.ok) {
-          throw new Error("Failed to fetch products");
-        }
-        const data = await response.json();
-        setFeaturedProducts(data.products); // Assuming the response contains an array of products
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching products:", error);
-        setLoading(false);
-      }
-    };
+  const fetchProducts = async () => {
+    setLoading(true);
+    try {
+      const queryParams = new URLSearchParams({
+        page: currentPage.toString(),
+        limit: pagination.pageSize.toString(),
+      });
 
+      const response = await fetch(`/api/products?${queryParams}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch products");
+      }
+
+      const data = await response.json();
+      setFeaturedProducts(data.products);
+      setPagination(data.pagination);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  React.useEffect(() => {
     fetchProducts();
-  }, []);
+  }, [currentPage]);
 
   // Delete item from the table
 
@@ -128,6 +143,10 @@ const AdminDashboard = () => {
       console.error("Error deleting product:", error.message);
       toast.error(error.message || "Error deleting product.");
     }
+  };
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage);
   };
 
   return (
@@ -340,6 +359,42 @@ const AdminDashboard = () => {
                       ))}
                     </TableBody>
                   </Table>
+                  <div className="flex justify-center items-center mt-4">
+                    <Button
+                      variant="ghost"
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                    >
+                      Previous
+                    </Button>
+
+                    <div className="flex space-x-2">
+                      {Array.from(
+                        { length: pagination.totalPages },
+                        (_, i) => i + 1
+                      ).map((page) => (
+                        <Button
+                          key={page}
+                          variant={page === currentPage ? "default" : "outline"}
+                          onClick={() => handlePageChange(page)}
+                        >
+                          {page}
+                        </Button>
+                      ))}
+                    </div>
+                    <Button
+                      variant="ghost"
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === pagination.totalPages}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                  <div className="flex justify-end">
+                    <span className="mx-2">
+                      Page {pagination.currentPage} of {pagination.totalPages}
+                    </span>
+                  </div>
                 </CardContent>
               </Card>
             </div>

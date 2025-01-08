@@ -68,7 +68,14 @@ const AddProduct = () => {
     e.preventDefault();
     console.log("button works");
 
-    if(productName == "" || description == "" || price == "" || category == "" || sellerInfo == "" || externalLink == "" ){
+    if (
+      productName == "" ||
+      description == "" ||
+      price == "" ||
+      category == "" ||
+      sellerInfo == "" ||
+      externalLink == ""
+    ) {
       toast.error("All fields are compulsory");
       return;
     }
@@ -176,10 +183,16 @@ const AddProduct = () => {
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="electronics">Electronics</SelectItem>
-                    <SelectItem value="clothing">Clothing</SelectItem>
-                    <SelectItem value="books">Books</SelectItem>
-                    <SelectItem value="home">Home & Kitchen</SelectItem>
+                    <SelectItem value="Electronics">Electronics</SelectItem>
+                    <SelectItem value="Clothing">Clothing</SelectItem>
+                    <SelectItem value="Books">Books</SelectItem>
+                    <SelectItem value="Home & Kitchen">
+                      Home & Kitchen
+                    </SelectItem>
+                    <SelectItem value="Beauty">Beauty</SelectItem>
+                    <SelectItem value="Sports & Outdoors">
+                      Sports & Outdoors
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -236,7 +249,11 @@ const AddProduct = () => {
           </form>
         </CardContent>
         <CardFooter>
-          <Button className="bg-[#350962] text-[#ffffff]" type="submit" onClick={handleSubmit}>
+          <Button
+            className="bg-[#350962] text-[#ffffff]"
+            type="submit"
+            onClick={handleSubmit}
+          >
             Add Product
           </Button>
         </CardFooter>
