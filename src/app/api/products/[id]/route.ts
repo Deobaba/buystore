@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongoose";
-import Product from "@/lib/product";
+import Product, { IProduct } from "@/lib/product";
+
 
 export const dynamic = "force-dynamic"; // Prevent static optimization
 
@@ -10,13 +11,21 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     await dbConnect();
   
     try {
-      const product = await Product.findById(id).lean();
+      const product = await Product.findById(id).lean() as IProduct | null; 
   
       if (!product) {
         return NextResponse.json({ error: "Product not found" }, { status: 404 });
       }
-  
-      return NextResponse.json(product, { status: 200 });
+    // Fetch related products in the same category, excluding the current product
+    const relatedProducts = await Product.find({
+      category: product.category,
+      _id: { $ne: product._id }, // Exclude the current product
+    })
+      .limit(5) // Limit the number of related products (adjust as needed)
+      .lean();
+
+    // Respond with the product and related products
+    return NextResponse.json({ product, relatedProducts }, { status: 200 });
     } catch (error:any) {
       console.error("Error fetching product by ID:", error);
       return NextResponse.json(
@@ -24,7 +33,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         { status: 500 }
       );
     }
-  }
+}
 
 // Edit product by ID
 export async function PUT(

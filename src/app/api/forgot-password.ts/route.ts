@@ -34,6 +34,7 @@ export async function POST(req: NextRequest) {
     // Set OTP and expiration time (5 minutes)
     user.resetPasswordOtp = otp;
     user.resetPasswordExpire = Date.now() + 30 * 60 * 1000;
+    console.log(user)
 
     await user.save();
 
