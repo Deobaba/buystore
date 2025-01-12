@@ -8,6 +8,8 @@ const ProductSchema = new mongoose.Schema(
     category: { type: String, required: true },
     sellerInfo: { type: String, required: true },
     externalLink: { type: String, required: true },
+    referralCode:{type:String, required: true},
+    additionalFeatures:{type:String, required: true},
     images: [{ type: String }], // Array of image URLs
     createdAt: { type: Date, default: Date.now },
   },
@@ -16,11 +18,13 @@ const ProductSchema = new mongoose.Schema(
   }
 );
 
-export interface Product {
+export interface IProduct {
   _id: string;
   name: string;
   description: string;
   price: number;
+  referralCode:string
+  additionalFeatures:string
   category: string;
   sellerInfo: string;
   externalLink: string;

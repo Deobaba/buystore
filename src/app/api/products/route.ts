@@ -14,10 +14,10 @@ export async function POST(req: Request, res: NextResponse) {
       return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
     }
 
-    const { productName, description, price, category, sellerInfo, externalLink, images } = data;
+    const { productName, description, price, category, sellerInfo, externalLink, images, referralCode, additionalFeatures } = data;
 
     // Validate required fields
-    if (!productName || !description || !price || !category || !sellerInfo || !externalLink || !images?.length) {
+    if (!productName || !description || !price || !category || !sellerInfo || !externalLink || !images?.length || !referralCode) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -45,6 +45,8 @@ export async function POST(req: Request, res: NextResponse) {
       category,
       sellerInfo,
       externalLink,
+      referralCode,
+      additionalFeatures,
       images: uploadedImageUrls,
     };
     console.log("Product Data:", productData);
@@ -89,11 +91,28 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const filters: { [key: string]: any } = {};
 
+    // search bar
+    const search = searchParams.get("search"); // New search parameter
+
     // Add filtering parameters
     const category = searchParams.get("category");
     const minPrice = searchParams.get("minPrice");
     const maxPrice = searchParams.get("maxPrice");
     const sellerInfo = searchParams.get("sellerInfo");
+
+    if (search) {
+      const numericSearch = parseFloat(search);
+
+      filters.$or = [
+        { name: { $regex: search, $options: "i" } }, // Search in name
+        { description: { $regex: search, $options: "i" } }, // Search in description
+        { category: { $regex: search, $options: "i" } }, // Search in category
+        { sellerInfo: { $regex: search, $options: "i" } }, // Search in sellerInfo
+        ...(isNaN(numericSearch)
+          ? [] // If `search` is not a number, skip numeric fields
+          : [{ price: numericSearch }]) // Match exact price if search is numeric
+      ];
+    }
 
     if (category) filters.category = category;
     if (minPrice) filters.price = { ...filters.price, $gte: parseFloat(minPrice) };
@@ -108,6 +127,7 @@ export async function GET(req: NextRequest) {
     const products = await Product.find(filters)
       .skip(skip)
       .limit(limit)
+      .sort({ createdAt: -1 }) 
       .lean();
 
     // Get total count of products for pagination metadata
