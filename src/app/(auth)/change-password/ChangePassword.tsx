@@ -20,54 +20,54 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 const ChangePassword = () => {
-
   const [isLoading, setIsLoading] = useState(false);
-  
-    const form = useForm<ChangePasswordData>({
-      resolver: zodResolver(changePasswordSchema),
-      defaultValues: {
-        email: "",
-        oldPassword: "",
-        newPassword: "",
-      },
-    });
-  
-    const handleSubmit = async (data: ChangePasswordData) => {
-      setIsLoading(true);
-  
-      try {
-        const response = await fetch("/api/change-password", {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        });
-  
-        if (!response.ok) {
-          const errorResponse = await response.json();
-          throw new Error(errorResponse.error || "Reset Passord failed");
-        }
-  
-        const responseData = await response.json();
-        console.log("Password reset successful:", responseData);
-  
-        // Show success toast
-        toast.success("Password resetted successfully.");
-  
-        // Redirect to dashboard after a delay
-        setTimeout(() => {
-          window.location.href = "/signin";
-        }, 1000);
-      } catch (error: any) {
-        console.error("Reset password error:", error.message);
-        //alert(error.message || "An error occurred during sign-in");
-        toast.error(error.message || "An error occurred while resetting password.");
-      } finally {
-        setIsLoading(false);
+
+  const form = useForm<ChangePasswordData>({
+    resolver: zodResolver(changePasswordSchema),
+    defaultValues: {
+      email: "",
+      oldPassword: "",
+      newPassword: "",
+    },
+  });
+
+  const handleSubmit = async (data: ChangePasswordData) => {
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/change-password", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        const errorResponse = await response.json();
+        throw new Error(errorResponse.error || "Reset Passord failed");
       }
-    };
-  
+
+      const responseData = await response.json();
+      console.log("Password reset successful:", responseData);
+
+      // Show success toast
+      toast.success("Password resetted successfully.");
+
+      // Redirect to dashboard after a delay
+      setTimeout(() => {
+        window.location.href = "/signin";
+      }, 1000);
+    } catch (error: any) {
+      console.error("Reset password error:", error.message);
+      //alert(error.message || "An error occurred during sign-in");
+      toast.error(
+        error.message || "An error occurred while resetting password."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="flex flex-col justify-center items-center mt-20 max-w-md mx-auto border rounded-lg p-6 md:p-12 shadow-md bg-white">
@@ -83,7 +83,7 @@ const ChangePassword = () => {
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
           <h2 className="text-2xl text-center mb-4">Reset Password</h2>
 
-          {/* reset code */}
+          {/* User Id */}
           <FormField
             control={form.control}
             name="email"
@@ -94,8 +94,8 @@ const ChangePassword = () => {
                   <Input
                     {...field}
                     value={field.value ?? ""}
-                    type="number"
-                    placeholder="Enter reset code"
+                    type="email"
+                    placeholder="Enter email"
                   />
                 </FormControl>
                 <FormMessage />
@@ -114,7 +114,7 @@ const ChangePassword = () => {
                   <Input
                     {...field}
                     value={field.value ?? ""}
-                    type="email"
+                    type="password"
                     placeholder="Enter old password"
                   />
                 </FormControl>
@@ -161,8 +161,7 @@ const ChangePassword = () => {
         </form>
       </Form>
     </div>
-  )
-}
+  );
+};
 
-export default ChangePassword
-
+export default ChangePassword;
