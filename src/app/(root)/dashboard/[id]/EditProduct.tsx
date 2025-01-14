@@ -35,6 +35,8 @@ const EditProduct = ({ id }: Props) => {
   const [category, setCategory] = React.useState("");
   const [sellerInfo, setSellerInfo] = React.useState("");
   const [externalLink, setExternalLink] = React.useState("");
+  const [referralCode, setReferralCode] = React.useState("");
+  const [additionalFeatures, setAdditionalFeatures] = React.useState("");
   const [images, setImages] = React.useState<string[]>([]); // Array to store image URLs
   const [loading, setLoading] = React.useState(true);
 
@@ -46,7 +48,9 @@ const EditProduct = ({ id }: Props) => {
         if (!response.ok) {
           throw new Error("Failed to fetch product");
         }
-        const product = await response.json();
+        const data = await response.json(); // Fetch the entire response object
+        const product = data.product; // Extract the product data from the response
+        //const product = await response.json();
 
         setProductName(product.name);
         setDescription(product.description);
@@ -54,6 +58,8 @@ const EditProduct = ({ id }: Props) => {
         setCategory(product.category);
         setSellerInfo(product.sellerInfo);
         setExternalLink(product.externalLink);
+        setReferralCode(product.referralCode);
+        setAdditionalFeatures(product.additionalFeatures);
         setImages(product.images || []); // Directly set the image URLs from the response
         setLoading(false);
       } catch (error) {
@@ -120,6 +126,8 @@ const EditProduct = ({ id }: Props) => {
           category,
           sellerInfo,
           externalLink,
+          referralCode,
+          additionalFeatures,
           images,
         }),
       });
@@ -202,10 +210,16 @@ const EditProduct = ({ id }: Props) => {
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="electronics">Electronics</SelectItem>
-                    <SelectItem value="clothing">Clothing</SelectItem>
-                    <SelectItem value="books">Books</SelectItem>
-                    <SelectItem value="home">Home & Kitchen</SelectItem>
+                    <SelectItem value="Electronics">Electronics</SelectItem>
+                    <SelectItem value="Clothing">Clothing</SelectItem>
+                    <SelectItem value="Books">Books</SelectItem>
+                    <SelectItem value="Home & Kitchen">
+                      Home & Kitchen
+                    </SelectItem>
+                    <SelectItem value="Beauty">Beauty</SelectItem>
+                    <SelectItem value="Sports & Outdoors">
+                      Sports & Outdoors
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -225,6 +239,25 @@ const EditProduct = ({ id }: Props) => {
                   type="text"
                   value={externalLink}
                   onChange={(e) => setExternalLink(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="referralCode">Referral Code</Label>
+                <Input
+                  id="referralCode"
+                  type="text"
+                  value={referralCode}
+                  onChange={(e) => setReferralCode(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="additionalFeatures">Additional Features</Label>
+                <Textarea
+                  id="additionalFeatures"
+                  value={additionalFeatures}
+                  onChange={(e) => setAdditionalFeatures(e.target.value)}
                   required
                 />
               </div>

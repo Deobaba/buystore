@@ -37,13 +37,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Product } from "@/lib/product";
+import { IProduct } from "@/lib/product";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const AdminDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
-  const [featuredProducts, setFeaturedProducts] = React.useState<Product[]>([]);
+  const [featuredProducts, setFeaturedProducts] = React.useState<IProduct[]>(
+    []
+  );
   const [loading, setLoading] = React.useState(true);
   const [currentPage, setCurrentPage] = React.useState(1);
   const [pagination, setPagination] = React.useState({
@@ -52,6 +54,9 @@ const AdminDashboard = () => {
     currentPage: 1,
     pageSize: 5,
   });
+
+  const [totalPage, setTotalPage] = React.useState(1);
+  const [searchQuery, setSearchQuery] = React.useState("");
 
   const products = [
     {
@@ -95,6 +100,7 @@ const AdminDashboard = () => {
     setLoading(true);
     try {
       const queryParams = new URLSearchParams({
+        ...(searchQuery && { search: searchQuery }),
         page: currentPage.toString(),
         limit: pagination.pageSize.toString(),
       });
@@ -107,6 +113,7 @@ const AdminDashboard = () => {
       const data = await response.json();
       setFeaturedProducts(data.products);
       setPagination(data.pagination);
+      setTotalPage(data.pagination.totalItems);
     } catch (error) {
       console.error("Error fetching products:", error);
     } finally {
@@ -215,7 +222,7 @@ const AdminDashboard = () => {
               <Menu className="h-6 w-6" />
             </Button>
             <div className="flex items-center space-x-4">
-              <Input type="search" placeholder="Search..." className="w-64" />
+              {/* <Input type="search" placeholder="Search..." className="w-64" /> */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -257,7 +264,7 @@ const AdminDashboard = () => {
                       <Package className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">2,345</div>
+                      <div className="text-2xl ml-7 font-bold">{totalPage}</div>
                       <p className="text-xs text-muted-foreground">
                         +15% from last month
                       </p>
@@ -309,10 +316,26 @@ const AdminDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="flex justify-between items-center mb-4">
-                    <Input
+                    {/* <Input
                       placeholder="Search products..."
                       className="max-w-sm"
-                    />
+                    /> */}
+                    <div className="hidden md:flex items-center space-x-4">
+                      <Input
+                        type="search"
+                        placeholder="Search products..."
+                        className="w-64"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                      />
+                      <Button
+                        variant="outline"
+                        onClick={fetchProducts} // Trigger fetch on button click
+                      >
+                        <Search className="h-4 w-4 mr-2" />
+                        Search
+                      </Button>
+                    </div>
                     <Link href="/addproduct">
                       <Button className="text-[#ffffff] bg-[#350962]">
                         <Plus className="mr-2 h-4 w-4" /> Add Product

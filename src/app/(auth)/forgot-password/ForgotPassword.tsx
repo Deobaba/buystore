@@ -39,6 +39,8 @@ const ForgotPassword = () => {
         body: JSON.stringify(data),
       });
 
+      console.log("Trying to make an api call.")
+
       if (!response.ok) {
         const errorResponse = await response.json();
         throw new Error(
