@@ -22,11 +22,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
-import { Product } from "@/lib/product";
+import { IProduct } from "@/lib/product";
 
 const Homepage = () => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-  const [featuredProducts, setFeaturedProducts] = React.useState<Product[]>([]);
+  const [featuredProducts, setFeaturedProducts] = React.useState<IProduct[]>(
+    []
+  );
   const [loading, setLoading] = React.useState(true);
 
   const [selectedCategory, setSelectedCategory] = React.useState<string | null>(
@@ -40,8 +42,10 @@ const Homepage = () => {
     pageSize: 8,
   });
 
+  const [searchQuery, setSearchQuery] = React.useState("");
+
   const categories = [
-    { name: "electronics", icon: Smartphone },
+    { name: "Electronics", icon: Smartphone },
     { name: "Home & Kitchen", icon: Home },
     { name: "Clothing", icon: Shirt },
     { name: "Beauty", icon: Sparkles },
@@ -73,6 +77,7 @@ const Homepage = () => {
     try {
       const queryParams = new URLSearchParams({
         ...(selectedCategory && { category: selectedCategory }),
+        ...(searchQuery && { search: searchQuery }),
         page: currentPage.toString(),
         limit: pagination.pageSize.toString(),
       });
@@ -81,7 +86,8 @@ const Homepage = () => {
       if (!response.ok) {
         throw new Error("Failed to fetch products");
       }
-
+      // const data = await response.json(); // Fetch the entire response object
+      // const product = data.product; // Extract the product data from the response
       const data = await response.json();
       setFeaturedProducts(data.products);
       setPagination(data.pagination);
@@ -126,12 +132,18 @@ const Homepage = () => {
               type="search"
               placeholder="Search products..."
               className="w-64"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <Button variant="outline">
+            <Button
+              variant="outline"
+              onClick={fetchProducts} // Trigger fetch on button click
+            >
               <Search className="h-4 w-4 mr-2" />
               Search
             </Button>
           </div>
+
           <div className="md:hidden">
             <Button variant="ghost" onClick={() => setIsMenuOpen(!isMenuOpen)}>
               {isMenuOpen ? (
@@ -297,7 +309,7 @@ const Homepage = () => {
         </section>
       </main>
 
-      <footer className="bg-gray-100 mt-12">
+      <footer className="bg-gray-200 mt-12">
         <div className="container mx-auto px-4 py-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>

@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ChevronLeft, Star, Share2 } from "lucide-react";
@@ -12,7 +13,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { Product } from "@/lib/product";
+import { IProduct } from "@/lib/product";
 
 interface Props {
   id: string;
@@ -20,9 +21,12 @@ interface Props {
 
 const ProductPage = ({ id }: Props) => {
   const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
-  const [product, setProduct] = React.useState<Product | null>(null);
+  const [product, setProduct] = React.useState<IProduct | null>(null);
+  const [relatedProduct, setRelatedProduct] = React.useState<IProduct[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
   const [error, setError] = React.useState<string | null>(null);
+  const [features, setFeatures] = useState([]);
+  const [images, setImages] = React.useState<string[]>([]);
 
   React.useEffect(() => {
     const fetchProduct = async () => {
@@ -31,8 +35,20 @@ const ProductPage = ({ id }: Props) => {
         if (!res.ok) {
           throw new Error("Failed to fetch product data");
         }
-        const data = await res.json();
-        setProduct(data);
+        const data = await res.json(); // Fetch the entire response object
+        const product = data.product; // Extract the product data from the response
+        // const data = await res.json();
+        const productRelated = data.relatedProducts;
+        setProduct(product);
+        setRelatedProduct(productRelated);
+        console.log(productRelated);
+        const featureList = product.additionalFeatures
+          ? product.additionalFeatures
+              .split(",")
+              .map((feature: any) => feature.trim())
+          : [];
+        setFeatures(featureList);
+        setImages(featureList.images || []);
       } catch (err: any) {
         setError(err.message || "An unexpected error occurred");
       } finally {
@@ -81,40 +97,40 @@ const ProductPage = ({ id }: Props) => {
   //     "Built-in microphone for calls",
   //   ],
   // }
-  const features = [
-    "Active noise cancellation",
-    "30-hour battery life",
-    "Comfortable over-ear design",
-    "Bluetooth 5.0 connectivity",
-    "Built-in microphone for calls",
-  ];
+  // const features = [
+  //   "Active noise cancellation",
+  //   "30-hour battery life",
+  //   "Comfortable over-ear design",
+  //   "Bluetooth 5.0 connectivity",
+  //   "Built-in microphone for calls",
+  // ];
 
-  const relatedProducts = [
-    {
-      name: "Portable Bluetooth Speaker",
-      price: "$79.99",
-      image:
-        "https://res.cloudinary.com/dlbwktrdc/image/upload/v1730237762/car-brainaic/carbrainiac__car-brainaic_1730237761369.jpg",
-    },
-    {
-      name: "True Wireless Earbuds",
-      price: "$129.99",
-      image:
-        "https://res.cloudinary.com/dlbwktrdc/image/upload/v1718971907/rdma8kzugnfje6zrk4gc.jpg",
-    },
-    {
-      name: "Audio-Technica Turntable",
-      price: "$249.99",
-      image:
-        "https://res.cloudinary.com/dlbwktrdc/image/upload/v1717162613/v3mctf5vvlwf1vnvwdwe.webp",
-    },
-    {
-      name: "Soundbar with Subwoofer",
-      price: "$199.99",
-      image:
-        "https://res.cloudinary.com/dlbwktrdc/image/upload/v1699371470/cld-sample.jpg",
-    },
-  ];
+  // const relatedProducts = [
+  //   {
+  //     name: "Portable Bluetooth Speaker",
+  //     price: "$79.99",
+  //     image:
+  //       "https://res.cloudinary.com/dlbwktrdc/image/upload/v1730237762/car-brainaic/carbrainiac__car-brainaic_1730237761369.jpg",
+  //   },
+  //   {
+  //     name: "True Wireless Earbuds",
+  //     price: "$129.99",
+  //     image:
+  //       "https://res.cloudinary.com/dlbwktrdc/image/upload/v1718971907/rdma8kzugnfje6zrk4gc.jpg",
+  //   },
+  //   {
+  //     name: "Audio-Technica Turntable",
+  //     price: "$249.99",
+  //     image:
+  //       "https://res.cloudinary.com/dlbwktrdc/image/upload/v1717162613/v3mctf5vvlwf1vnvwdwe.webp",
+  //   },
+  //   {
+  //     name: "Soundbar with Subwoofer",
+  //     price: "$199.99",
+  //     image:
+  //       "https://res.cloudinary.com/dlbwktrdc/image/upload/v1699371470/cld-sample.jpg",
+  //   },
+  // ];
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -204,8 +220,8 @@ const ProductPage = ({ id }: Props) => {
             <a
               href={
                 product.externalLink.startsWith("http")
-                  ? product.externalLink
-                  : `https://${product.externalLink}`
+                  ? `${product.externalLink}?referralCode=${product.referralCode}`
+                  : `https://${product.externalLink}?referralCode=${product.referralCode}`
               }
               target="_blank"
               rel="noopener noreferrer"
@@ -231,6 +247,13 @@ const ProductPage = ({ id }: Props) => {
                   </li>
                 ))}
               </ul>
+              {/* <ul className="list-disc list-inside">
+                {features.map((feature, index) => (
+                  <li key={index} className="text-gray-600">
+                    {feature}
+                  </li>
+                ))}
+              </ul> */}
             </div>
             {/* <p className="text-sm text-gray-500">
               Seller:{" "}
@@ -247,14 +270,35 @@ const ProductPage = ({ id }: Props) => {
         <section className="mt-12">
           <h2 className="text-2xl font-bold mb-6">Related Products</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {relatedProducts.map((product, index) => (
+            {relatedProduct.map((product: any, index: any) => (
               <Card key={index}>
                 <CardContent className="p-4">
-                  <img
+                  {/* <img
                     src={product.image}
                     alt={product.name}
                     className="w-full h-48 object-cover mb-4 rounded"
-                  />
+                  /> */}
+                  {product.images && product.images.length > 0 ? (
+                    <div className="relative">
+                      <img
+                        src={product.images[0]} // Display the first image
+                        alt={product.name}
+                        className="w-full h-48 object-cover mb-4 rounded"
+                        onError={(e) =>
+                          (e.currentTarget.src =
+                            "https://via.placeholder.com/150")
+                        }
+                      />
+                    </div>
+                  ) : (
+                    <div className="relative">
+                      <img
+                        src="https://via.placeholder.com/150"
+                        alt="Placeholder"
+                        className="w-full h-48 object-cover mb-4 rounded"
+                      />
+                    </div>
+                  )}
                   <CardTitle className="text-lg">{product.name}</CardTitle>
                   <p className="font-bold text-lg mt-2">{product.price}</p>
                 </CardContent>
@@ -272,7 +316,7 @@ const ProductPage = ({ id }: Props) => {
         </section>
       </main>
 
-      <footer className="bg-gray-100 mt-12">
+      <footer className="bg-gray-200 mt-12">
         <div className="container mx-auto px-4 py-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>

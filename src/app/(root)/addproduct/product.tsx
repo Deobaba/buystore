@@ -31,6 +31,8 @@ const AddProduct = () => {
   const [category, setCategory] = React.useState("");
   const [sellerInfo, setSellerInfo] = React.useState("");
   const [externalLink, setExternalLink] = React.useState("");
+  const [referralCode, setReferralCode] = React.useState("");
+  const [additionalFeatures, setAdditionalFeatures] = React.useState("");
   const [images, setImages] = React.useState<any[]>([]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -93,6 +95,8 @@ const AddProduct = () => {
           category,
           sellerInfo,
           externalLink,
+          referralCode,
+          additionalFeatures,
           images,
         }),
       });
@@ -167,7 +171,7 @@ const AddProduct = () => {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="price">Price</Label>
+                <Label htmlFor="price">Price (NGN)</Label>
                 <Input
                   id="price"
                   type="number"
@@ -212,6 +216,25 @@ const AddProduct = () => {
                   type="url"
                   value={externalLink}
                   onChange={(e) => setExternalLink(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="externalLink">Referral Code</Label>
+                <Input
+                  id="referralCode"
+                  type="text"
+                  value={referralCode}
+                  onChange={(e) => setReferralCode(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="externalLink">Additional Features</Label>
+                <Textarea
+                  id="additionalFeatures"
+                  value={additionalFeatures}
+                  onChange={(e) => setAdditionalFeatures(e.target.value)}
                   required
                 />
               </div>
