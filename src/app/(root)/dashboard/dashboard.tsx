@@ -1,5 +1,6 @@
 "use client";
 import * as React from "react";
+import { useState } from "react";
 import {
   BarChart,
   Users,
@@ -40,6 +41,7 @@ import {
 import { IProduct } from "@/lib/product";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { Modal } from "@/components/ui/Modal";
 
 const AdminDashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
@@ -57,6 +59,8 @@ const AdminDashboard = () => {
 
   const [totalPage, setTotalPage] = React.useState(1);
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<string | null>(null);
 
   const products = [
     {
@@ -127,9 +131,16 @@ const AdminDashboard = () => {
 
   // Delete item from the table
 
-  const handleDelete = async (id: any) => {
+  const handleDeleteClick = (id: string) => {
+    setProductToDelete(id);
+    setShowModal(true); // Open modal
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!productToDelete) return;
+
     try {
-      const response = await fetch(`/api/products/${id}`, {
+      const response = await fetch(`/api/products/${productToDelete}`, {
         method: "DELETE",
       });
 
@@ -149,6 +160,9 @@ const AdminDashboard = () => {
     } catch (error: any) {
       console.error("Error deleting product:", error.message);
       toast.error(error.message || "Error deleting product.");
+    } finally {
+      setShowModal(false); // Close modal
+      setProductToDelete(null);
     }
   };
 
@@ -373,7 +387,7 @@ const AdminDashboard = () => {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleDelete(product._id)}
+                              onClick={() => handleDeleteClick(product._id)}
                             >
                               <Trash className="h-4 w-4" />
                             </Button>
@@ -424,6 +438,14 @@ const AdminDashboard = () => {
           </div>
         </main>
       </div>
+      {/* Confirmation Modal */}
+      <Modal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onConfirm={handleConfirmDelete}
+        title="Confirm Delete"
+        description="Are you sure you want to delete this product? This action cannot be undone."
+      />
     </div>
   );
 };
