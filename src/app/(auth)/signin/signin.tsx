@@ -64,7 +64,7 @@ const SignInForm = () => {
     } catch (error: any) {
       console.error("Sign-in error:", error.message);
       //alert(error.message || "An error occurred during sign-in");
-      toast.error(error.message || "An error occurred during sign-in");
+      toast.error("An error occurred during sign-in. Please try again later.");
     } finally {
       setIsLoading(false);
     }
