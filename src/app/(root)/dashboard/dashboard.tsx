@@ -151,7 +151,7 @@ const AdminDashboard = () => {
 
       // Remove the deleted product from the state
       setFeaturedProducts((prevProducts) =>
-        prevProducts.filter((product) => product._id !== id)
+        prevProducts.filter((product) => product._id !== productToDelete)
       );
 
       console.log("Product deleted successfully");
