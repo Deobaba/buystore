@@ -18,6 +18,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { debug } from "console";
 const ForgotPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -29,8 +30,10 @@ const ForgotPassword = () => {
   });
 
   const handleSubmit = async (data: ForgotPasswordData) => {
+    console.log("Data:", data);
     setIsLoading(true);
     try {
+      debugger
       const response = await fetch("/api/forgot-password", {
         method: "POST",
         headers: {
@@ -38,6 +41,7 @@ const ForgotPassword = () => {
         },
         body: JSON.stringify(data),
       });
+      
 
       console.log("Trying to make an api call.")
 

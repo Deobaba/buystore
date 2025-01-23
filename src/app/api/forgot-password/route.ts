@@ -61,9 +61,13 @@ export async function PUT(req: NextRequest) {
   await dbConnect();
 
   try {
-    const { email, otp, newPassword } = await req.json();
+    const { email, code, password } = await req.json();
 
-    if (!email || !otp || !newPassword) {
+    console.log("Email:", email);
+    console.log("OTP:", code);
+    console.log("Password", password)
+
+    if (!email || !code || !password) {
       return NextResponse.json(
         { error: "Email, OTP, and new password are required" },
         { status: 400 }
@@ -82,7 +86,7 @@ export async function PUT(req: NextRequest) {
 
     // Verify OTP and check expiration
     if (
-      user.resetPasswordOtp !== otp ||
+      user.resetPasswordOtp !== code||
       user.resetPasswordExpire < Date.now()
     ) {
       return NextResponse.json(
@@ -92,7 +96,7 @@ export async function PUT(req: NextRequest) {
     }
 
     // Hash the new password and update the user's record
-    user.password = await bcrypt.hash(newPassword, 10);
+    user.password = await bcrypt.hash(password, 10);
 
     // Clear OTP fields
     user.resetPasswordOtp = undefined;

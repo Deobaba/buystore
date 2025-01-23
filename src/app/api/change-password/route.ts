@@ -7,18 +7,18 @@ export async function PUT(req: NextRequest) {
   await dbConnect();
 
   try {
-    const { userId, oldPassword, newPassword } = await req.json();
+    const { email, oldPassword, newPassword } = await req.json();
 
     // Validate input
-    if (!userId || !oldPassword || !newPassword) {
+    if (!email || !oldPassword || !newPassword) {
       return NextResponse.json(
-        { error: "User ID, old password, and new password are required" },
+        { error: "email, old password, and new password are required" },
         { status: 400 }
       );
     }
 
     // Find the user by ID
-    const user = await User.findById(userId);
+    const user = await User.findOne({email});
 
     if (!user) {
       return NextResponse.json(

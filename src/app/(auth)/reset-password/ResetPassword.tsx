@@ -73,7 +73,7 @@ const ResetPassword = () => {
     <div className="flex flex-col justify-center items-center mt-20 max-w-md mx-auto border rounded-lg p-6 md:p-12 shadow-md bg-white">
       <Image
         src="/assets/images/Logo3.jpg"
-        alt="SCAMalicious Logo"
+        alt="buystore Logo"
         width={80}
         height={80}
         className="mb-5"

@@ -81,7 +81,7 @@ const ChangePassword = () => {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-          <h2 className="text-2xl text-center mb-4">Reset Password</h2>
+          <h2 className="text-2xl text-center mb-4">Change Password</h2>
 
           {/* User Id */}
           <FormField
