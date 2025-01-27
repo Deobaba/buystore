@@ -191,8 +191,8 @@ const Homepage = () => {
                       Seller: {product.sellerInfo}
                     </p> */}
                     <p className="text-sm text-gray-600 mt-2">
-                      {product.description.length > 100
-                        ? `${product.description.substring(0, 100)}...`
+                      {product.description.length > 30
+                        ? `${product.description.substring(0, 50)}...`
                         : product.description}
                     </p>
                   </CardContent>
