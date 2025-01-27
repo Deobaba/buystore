@@ -58,7 +58,7 @@ const ResetPassword = () => {
         // Redirect to dashboard after a delay
         setTimeout(() => {
           window.location.href = "/signin";
-        }, 1000);
+        }, 500);
       } catch (error: any) {
         console.error("Reset password error:", error.message);
         //alert(error.message || "An error occurred during sign-in");

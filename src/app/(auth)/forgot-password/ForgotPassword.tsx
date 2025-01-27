@@ -33,7 +33,7 @@ const ForgotPassword = () => {
     console.log("Data:", data);
     setIsLoading(true);
     try {
-      debugger
+      debugger;
       const response = await fetch("/api/forgot-password", {
         method: "POST",
         headers: {
@@ -41,9 +41,8 @@ const ForgotPassword = () => {
         },
         body: JSON.stringify(data),
       });
-      
 
-      console.log("Trying to make an api call.")
+      console.log("Trying to make an api call.");
 
       if (!response.ok) {
         const errorResponse = await response.json();
@@ -58,6 +57,9 @@ const ForgotPassword = () => {
       );
 
       // Redirect to dashboard after a delay
+      setTimeout(() => {
+        window.location.href = "/reset-password";
+      }, 500);
     } catch (error: any) {
       console.error("Forgot-password error:", error.message);
       //alert(error.message || "An error occurred during sign-in");
