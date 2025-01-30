@@ -39,7 +39,7 @@ const Homepage = () => {
     totalItems: 0,
     totalPages: 0,
     currentPage: 1,
-    pageSize: 8,
+    pageSize: 4,
   });
 
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -143,7 +143,6 @@ const Homepage = () => {
               Search
             </Button>
           </div>
-
           <div className="md:hidden">
             <Button variant="ghost" onClick={() => setIsMenuOpen(!isMenuOpen)}>
               {isMenuOpen ? (
@@ -218,8 +217,8 @@ const Homepage = () => {
           </div>
         </section>
 
-        <section className="mt-8 flex flex-col justify-end items-end">
-          <h2 className="text-lg font-bold mb-4">Pagination</h2>
+        <section className="mt-4 flex flex-col justify-end items-end">
+          {/* <h2 className="text-lg font-bold mb-4">Pagination</h2> */}
           <div className="flex justify-end">
             <div className="flex space-x-2">
               {Array.from(

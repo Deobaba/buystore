@@ -230,7 +230,7 @@ const AddProduct = () => {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="externalLink">Additional Features</Label>
+                <Label htmlFor="externalLink">Additional Features (Add multiple features separated by comma)</Label>
                 <Textarea
                   id="additionalFeatures"
                   value={additionalFeatures}
