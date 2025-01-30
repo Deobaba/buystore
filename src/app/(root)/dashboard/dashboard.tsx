@@ -54,7 +54,7 @@ const AdminDashboard = () => {
     totalItems: 0,
     totalPages: 0,
     currentPage: 1,
-    pageSize: 5,
+    pageSize: 4,
   });
 
   const [totalPage, setTotalPage] = React.useState(1);
@@ -398,9 +398,9 @@ const AdminDashboard = () => {
                   </Table>
                   <div className="flex justify-center items-center mt-4">
                     <Button
-                      variant="ghost"
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}
+                      className="bg-[#350962] mr-1"
                     >
                       Previous
                     </Button>
@@ -420,7 +420,7 @@ const AdminDashboard = () => {
                       ))}
                     </div>
                     <Button
-                      variant="ghost"
+                      className="bg-[#350962] ml-1"
                       onClick={() => handlePageChange(currentPage + 1)}
                       disabled={currentPage === pagination.totalPages}
                     >
