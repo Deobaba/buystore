@@ -27,6 +27,26 @@ const ProductPage = ({ id }: Props) => {
   const [error, setError] = React.useState<string | null>(null);
   const [features, setFeatures] = useState([]);
   const [images, setImages] = React.useState<string[]>([]);
+  const [shared, setShared] = useState(false);
+  const shareUrl = typeof window !== "undefined" ? window.location.href : "";
+
+  //=========handle sharing ============
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "Check this out!",
+          text: "I found this interesting:",
+          url: shareUrl,
+        });
+        setShared(true);
+      } catch (error) {
+        console.error("Error sharing:", error);
+      }
+    } else {
+      console.warn("Web Share API not supported");
+    }
+  };
 
   React.useEffect(() => {
     const fetchProduct = async () => {
@@ -234,9 +254,14 @@ const ProductPage = ({ id }: Props) => {
             {/* <Button size="lg" className="w-full mb-4 bg-[#350962]">
               Buy
             </Button> */}
-            <Button variant="outline" size="lg" className="w-full mb-6">
+            <Button
+              onClick={handleShare}
+              variant="outline"
+              size="lg"
+              className="w-full mb-6"
+            >
               <Share2 className="h-4 w-4 mr-2" />
-              Share
+              {shared ? "Shared!" : "Share"}
             </Button>
             <div className="mb-6">
               <h2 className="text-xl font-semibold mb-2">Key Features:</h2>
