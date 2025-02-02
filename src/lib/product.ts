@@ -11,6 +11,7 @@ const ProductSchema = new mongoose.Schema(
     referralCode:{type:String, required: true},
     additionalFeatures:{type:String, required: true},
     clicks: { type: Number, default: 0 },
+    share: { type: Number, default: 0 },
     images: [{ type: String }], // Array of image URLs
     createdAt: { type: Date, default: Date.now },
   },
@@ -28,6 +29,7 @@ export interface IProduct {
   additionalFeatures:string
   category: string;
   clicks: number;
+  share: number;
   sellerInfo: string;
   externalLink: string;
   images: string[]; // Array of image URLs

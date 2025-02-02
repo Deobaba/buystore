@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongoose";
 import Product, { IProduct } from "@/lib/product";
+import { LRUCache } from 'lru-cache'
+import { authenticateUser, cache } from "../route";
 
 
 export const dynamic = "force-dynamic"; // Prevent static optimization
@@ -44,6 +46,13 @@ export async function PUT(
   await dbConnect();
 
   try {
+    const user = await authenticateUser(req);
+    if (!user) {
+      return NextResponse.json(
+        { error: "Unauthorized: Invalid or missing token" },
+        { status: 401 }
+      );
+    }
     const body = await req.json();
 
     // Validate input
@@ -67,7 +76,7 @@ export async function PUT(
         { status: 404 }
       );
     }
-
+    cache.clear(); // Clear the cache to reflect the updated product
     return NextResponse.json(updatedProduct, { status: 200 });
   } catch (error: any) {
     console.error("Error updating product:", error);
@@ -89,6 +98,8 @@ export async function DELETE(
   await dbConnect();
 
   try {
+
+
     // Validate product ID
     if (!id) {
       return NextResponse.json(
@@ -97,6 +108,13 @@ export async function DELETE(
       );
     }
 
+    const user = await authenticateUser(req);
+    if (!user) {
+      return NextResponse.json(
+        { error: "Unauthorized: Invalid or missing token" },
+        { status: 401 }
+      );
+    }
     // Find and delete the product
     const deletedProduct = await Product.findByIdAndDelete(id).lean();
 
@@ -106,7 +124,7 @@ export async function DELETE(
         { status: 404 }
       );
     }
-
+    cache.clear(); // Clear the cache to reflect the deleted product
     return NextResponse.json(
       { message: "Product deleted successfully", product: deletedProduct },
       { status: 200 }

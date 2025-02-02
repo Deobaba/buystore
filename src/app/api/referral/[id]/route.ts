@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongoose";
-import Product, { IProduct } from "@/lib/product";
+import Product from "@/lib/product";
 
 export async function POST(
   req: NextRequest,
@@ -10,20 +10,30 @@ export async function POST(
   await dbConnect();
 
   try {
-    const { referralCode } = await req.json();
+    const { referralCode, action } = await req.json();
 
     // Validate input
-    if (!id || !referralCode) {
+    if (!id || !referralCode || !action) {
       return NextResponse.json(
-        { error: "Product ID and referral code are required" },
+        { error: "Product ID, referral code, and action are required" },
         { status: 400 }
       );
     }
 
-    // Find the product and increment the clicks
+    if (!["click", "share"].includes(action)) {
+      return NextResponse.json(
+        { error: "Invalid action. Must be 'click' or 'share'" },
+        { status: 400 }
+      );
+    }
+
+    // Determine the field to update based on action
+    const updateField = action === "click" ? { clicks: 1 } : { shares: 1 };
+
+    // Find the product and increment the respective field
     const updatedProduct = await Product.findOneAndUpdate(
       { _id: id, referralCode }, // Match both id and referralCode
-      { $inc: { clicks: 1 } }, // Increment clicks by 1
+      { $inc: updateField }, // Increment clicks or shares
       { new: true, runValidators: true } // Return the updated document
     ).lean();
 
@@ -35,11 +45,11 @@ export async function POST(
     }
 
     return NextResponse.json(
-      { message: "Click count updated successfully", product: updatedProduct },
+      { message: `${action} count updated successfully`, product: updatedProduct },
       { status: 200 }
     );
   } catch (error: any) {
-    console.error("Error updating product clicks:", error);
+    console.error("Error updating product:", error);
     return NextResponse.json(
       { error: "Internal server error", details: error.message },
       { status: 500 }

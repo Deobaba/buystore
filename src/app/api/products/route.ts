@@ -1,13 +1,48 @@
 import { NextRequest, NextResponse } from "next/server";
 import { uploadToCloudinary, uploadToS3 } from "@/utils/upload";
-
+import UserModel, { User } from "@/lib/user";
+import jwt from "jsonwebtoken";
 import dbConnect from "@/lib/mongoose";
 import Product from "@/lib/product";
+import { LRUCache } from 'lru-cache'
+
+// Initialize LRU cache
+export const cache = new LRUCache ({
+  max: 500, // Store up to 500 items
+  ttl: 600 * 10000 * 24, // Cache expiration time: 10 minutes
+});
+
+
+export const authenticateUser = async (req: Request) => {
+  const authHeader = req.headers.get("authorization");
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return null;
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded : any = jwt.verify(token, process.env.JWT_SECRET!);
+    const user = await UserModel.findById(decoded.id).lean();
+    return user as User | null;
+  } catch (error) {
+    return null;
+  }
+}
+
 
 
 export async function POST(req: Request, res: NextResponse) {
   await dbConnect();
   try {
+
+    const user = await authenticateUser(req);
+    if (!user) {
+      return NextResponse.json(
+        { error: "Unauthorized: Invalid or missing token" },
+        { status: 401 }
+      );
+    }
     const data = await req.json();
 
     if (!data) {
@@ -65,6 +100,8 @@ try {
 }  
 const plainProduct = product.toObject();
 
+cache.clear(); // Clear cache to reflect the new product
+
 return NextResponse.json(plainProduct, { status: 201 });
   } catch (error : any) {
     console.error("Error processing request:", error);
@@ -91,10 +128,8 @@ export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const filters: { [key: string]: any } = {};
 
-    // search bar
-    const search = searchParams.get("search"); // New search parameter
-
-    // Add filtering parameters
+    // Extract query parameters
+    const search = searchParams.get("search");
     const category = searchParams.get("category");
     const minPrice = searchParams.get("minPrice");
     const maxPrice = searchParams.get("maxPrice");
@@ -102,15 +137,12 @@ export async function GET(req: NextRequest) {
 
     if (search) {
       const numericSearch = parseFloat(search);
-
       filters.$or = [
-        { name: { $regex: search, $options: "i" } }, // Search in name
-        { description: { $regex: search, $options: "i" } }, // Search in description
-        { category: { $regex: search, $options: "i" } }, // Search in category
-        { sellerInfo: { $regex: search, $options: "i" } }, // Search in sellerInfo
-        ...(isNaN(numericSearch)
-          ? [] // If `search` is not a number, skip numeric fields
-          : [{ price: numericSearch }]) // Match exact price if search is numeric
+        { name: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+        { category: { $regex: search, $options: "i" } },
+        { sellerInfo: { $regex: search, $options: "i" } },
+        ...(isNaN(numericSearch) ? [] : [{ price: numericSearch }]),
       ];
     }
 
@@ -119,21 +151,29 @@ export async function GET(req: NextRequest) {
     if (maxPrice) filters.price = { ...filters.price, $lte: parseFloat(maxPrice) };
     if (sellerInfo) filters.sellerInfo = sellerInfo;
 
-    // Pagination parameters
-    const page = parseInt(searchParams.get("page") || "1", 10); // Default to page 1
-    const limit = parseInt(searchParams.get("limit") || "10", 10); // Default to 10 items per page
+    // Pagination
+    const page = parseInt(searchParams.get("page") || "1", 10);
+    const limit = parseInt(searchParams.get("limit") || "10", 10);
     const skip = (page - 1) * limit;
 
+    // Create a unique cache key based on filters and pagination
+    const cacheKey = `products:${JSON.stringify(filters)}:page:${page}:limit:${limit}`;
+
+    // Check cache first
+    if (cache.has(cacheKey)) {
+      console.log("Returning cached data...");
+      return NextResponse.json(cache.get(cacheKey), { status: 200 });
+    }
+
+    // Fetch products from DB
     const products = await Product.find(filters)
       .skip(skip)
       .limit(limit)
-      .sort({ createdAt: -1 }) 
+      .sort({ createdAt: -1 })
       .lean();
 
-    // Get total count of products for pagination metadata
     const totalCount = await Product.countDocuments(filters);
 
-    // Construct pagination metadata
     const pagination = {
       totalItems: totalCount,
       totalPages: Math.ceil(totalCount / limit),
@@ -141,7 +181,12 @@ export async function GET(req: NextRequest) {
       pageSize: limit,
     };
 
-    return NextResponse.json({ products, pagination }, { status: 200 });
+    const responseData = { products, pagination };
+
+    // Store in cache
+    cache.set(cacheKey, responseData);
+
+    return NextResponse.json(responseData, { status: 200 });
   } catch (error: any) {
     console.error("Error fetching products:", error);
     return NextResponse.json(
@@ -150,6 +195,5 @@ export async function GET(req: NextRequest) {
     );
   }
 }
-
 
 

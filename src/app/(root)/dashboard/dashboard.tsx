@@ -61,44 +61,8 @@ const AdminDashboard = () => {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [showModal, setShowModal] = useState(false);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
+  const [analytics, setAnalytics] = React.useState<any>();
 
-  const products = [
-    {
-      id: 1,
-      name: "Wireless Headphones",
-      category: "Electronics",
-      price: "$199.99",
-      stock: 50,
-    },
-    {
-      id: 2,
-      name: "Smart Watch",
-      category: "Electronics",
-      price: "$249.99",
-      stock: 30,
-    },
-    {
-      id: 3,
-      name: "Portable Speaker",
-      category: "Electronics",
-      price: "$79.99",
-      stock: 100,
-    },
-    {
-      id: 4,
-      name: "Fitness Tracker",
-      category: "Electronics",
-      price: "$99.99",
-      stock: 75,
-    },
-    {
-      id: 5,
-      name: "Bluetooth Earbuds",
-      category: "Electronics",
-      price: "$129.99",
-      stock: 60,
-    },
-  ];
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -109,15 +73,23 @@ const AdminDashboard = () => {
         limit: pagination.pageSize.toString(),
       });
 
-      const response = await fetch(`/api/products?${queryParams}`);
+      const [response, analytics] = await Promise.all([
+        fetch(`/api/products?${queryParams}`),
+        fetch(`/api/referral`),
+      ]) 
+
       if (!response.ok) {
         throw new Error("Failed to fetch products");
       }
-
+      if (!analytics.ok) {
+        throw new Error("Failed to fetch analytics");
+      }
+      console.log(await analytics.json())
       const data = await response.json();
       setFeaturedProducts(data.products);
       setPagination(data.pagination);
       setTotalPage(data.pagination.totalItems);
+      setAnalytics(await analytics.json());
     } catch (error) {
       console.error("Error fetching products:", error);
     } finally {
@@ -290,12 +262,12 @@ const AdminDashboard = () => {
                   <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                       <CardTitle className="text-sm font-medium">
-                        Active Affiliates
+                        Shares
                       </CardTitle>
                       <Users className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">573</div>
+                      <div className="text-2xl font-bold">342</div>
                       <p className="text-xs text-muted-foreground">
                         +201 since last month
                       </p>
@@ -312,7 +284,7 @@ const AdminDashboard = () => {
                       <BarChart className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">3.24%</div>
+                      <div className="text-2xl font-bold">2%</div>
                       <p className="text-xs text-muted-foreground">
                         +1.2% from last week
                       </p>
