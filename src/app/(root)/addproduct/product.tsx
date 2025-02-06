@@ -70,6 +70,14 @@ const AddProduct = () => {
     e.preventDefault();
     console.log("button works");
 
+    const token = localStorage.getItem("authToken");
+
+    // Define headers with Authorization token
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: token ? `Bearer ${token}` : "", // Add token if available
+    };
+
     if (
       productName == "" ||
       description == "" ||
@@ -85,9 +93,7 @@ const AddProduct = () => {
     try {
       const response = await fetch("/api/products", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers,
         body: JSON.stringify({
           productName,
           description,

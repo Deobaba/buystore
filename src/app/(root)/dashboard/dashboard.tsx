@@ -63,20 +63,34 @@ const AdminDashboard = () => {
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
   const [analytics, setAnalytics] = React.useState<any>();
 
-
   const fetchProducts = async () => {
     setLoading(true);
     try {
+      // Retrieve token from local storage
+      const token = localStorage.getItem("authToken");
+
       const queryParams = new URLSearchParams({
         ...(searchQuery && { search: searchQuery }),
         page: currentPage.toString(),
         limit: pagination.pageSize.toString(),
       });
 
+      // Define headers with Authorization token
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: token ? `Bearer ${token}` : "", // Add token if available
+      };
+
       const [response, analytics] = await Promise.all([
-        fetch(`/api/products?${queryParams}`),
-        fetch(`/api/referral`),
-      ]) 
+        fetch(`/api/products?${queryParams}`, {
+          method: "GET",
+          headers,
+        }),
+        fetch(`/api/referral`, {
+          method: "GET",
+          headers,
+        }),
+      ]);
 
       if (!response.ok) {
         throw new Error("Failed to fetch products");
@@ -84,7 +98,7 @@ const AdminDashboard = () => {
       if (!analytics.ok) {
         throw new Error("Failed to fetch analytics");
       }
-      console.log(await analytics.json())
+      console.log(await analytics.json());
       const data = await response.json();
       setFeaturedProducts(data.products);
       setPagination(data.pagination);
@@ -109,11 +123,20 @@ const AdminDashboard = () => {
   };
 
   const handleConfirmDelete = async () => {
+    const token = localStorage.getItem("authToken");
+
+    // Define headers with Authorization token
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: token ? `Bearer ${token}` : "", // Add token if available
+    };
+
     if (!productToDelete) return;
 
     try {
       const response = await fetch(`/api/products/${productToDelete}`, {
         method: "DELETE",
+        headers,
       });
 
       if (!response.ok) {
