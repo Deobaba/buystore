@@ -196,7 +196,21 @@ const Homepage = () => {
                     </p>
                   </CardContent>
                   <CardFooter>
-                    <Link
+                    <Button
+                      className="w-[100px] bg-[#350962] text-[#ffffff]"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent navigation to product details
+                        window.open(
+                          product.externalLink.startsWith("http")
+                            ? `${product.externalLink}?referralCode=${product.referralCode}`
+                            : `https://${product.externalLink}?referralCode=${product.referralCode}`,
+                          "_blank"
+                        );
+                      }}
+                    >
+                      Buy
+                    </Button>
+                    {/* <Link
                       href={
                         product.externalLink.startsWith("http")
                           ? product.externalLink
@@ -206,10 +220,21 @@ const Homepage = () => {
                       rel="noopener noreferrer"
                       className="no-underline"
                     >
-                      <Button className="w-[100px] bg-[#350962] text-[#ffffff]">
+                      <Button
+                        className="w-[100px] bg-[#350962] text-[#ffffff]"
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent navigation to product details
+                          window.open(
+                            product.externalLink.startsWith("http")
+                              ? product.externalLink
+                              : `https://${product.externalLink}`,
+                            "_blank"
+                          );
+                        }}
+                      >
                         Buy
                       </Button>
-                    </Link>
+                    </Link> */}
                   </CardFooter>
                 </Card>
               </Link>
