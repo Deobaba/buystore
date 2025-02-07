@@ -62,21 +62,37 @@ const AdminDashboard = () => {
   const [showModal, setShowModal] = useState(false);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
   const [analytics, setAnalytics] = React.useState<any>();
-
+  const [shareCount, setShareCount] = React.useState<any>();
+  const [clickCount, setClickCount] = React.useState<any>();
 
   const fetchProducts = async () => {
     setLoading(true);
     try {
+      // Retrieve token from local storage
+      const token = localStorage.getItem("authToken");
+
       const queryParams = new URLSearchParams({
         ...(searchQuery && { search: searchQuery }),
         page: currentPage.toString(),
         limit: pagination.pageSize.toString(),
       });
 
+      // Define headers with Authorization token
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: token ? `Bearer ${token}` : "", // Add token if available
+      };
+
       const [response, analytics] = await Promise.all([
-        fetch(`/api/products?${queryParams}`),
-        fetch(`/api/referral`),
-      ]) 
+        fetch(`/api/products?${queryParams}`, {
+          method: "GET",
+          headers,
+        }),
+        fetch(`/api/referral`, {
+          method: "GET",
+          headers,
+        }),
+      ]);
 
       if (!response.ok) {
         throw new Error("Failed to fetch products");
@@ -84,7 +100,7 @@ const AdminDashboard = () => {
       if (!analytics.ok) {
         throw new Error("Failed to fetch analytics");
       }
-      console.log(await analytics.json())
+      console.log(await analytics.json());
       const data = await response.json();
       setFeaturedProducts(data.products);
       setPagination(data.pagination);
@@ -102,18 +118,26 @@ const AdminDashboard = () => {
   }, [currentPage]);
 
   // Delete item from the table
-
   const handleDeleteClick = (id: string) => {
     setProductToDelete(id);
     setShowModal(true); // Open modal
   };
 
   const handleConfirmDelete = async () => {
+    const token = localStorage.getItem("authToken");
+
+    // Define headers with Authorization token
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: token ? `Bearer ${token}` : "", // Add token if available
+    };
+
     if (!productToDelete) return;
 
     try {
       const response = await fetch(`/api/products/${productToDelete}`, {
         method: "DELETE",
+        headers,
       });
 
       if (!response.ok) {
@@ -141,6 +165,38 @@ const AdminDashboard = () => {
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
   };
+
+  // ========= getting share count ==========
+  React.useEffect(() => {
+    const fetchShareCount = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+
+        // Define headers with Authorization token
+        const headers = {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        };
+
+        const res = await fetch(`/api/referral`, {
+          method: "GET",
+          headers,
+        });
+
+        const data = await res.json(); // ✅ Parse JSON response
+        console.log(data);
+
+        setShareCount(data.shares.currentWeek); // ✅ Set only the current week's shares
+        setClickCount(data.clicks.currentWeek);
+      } catch (err: any) {
+        console.error("Error fetching share count:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchShareCount();
+  }, []); // ✅ Add dependency array to avoid infinite calls
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -267,7 +323,9 @@ const AdminDashboard = () => {
                       <Users className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">342</div>
+                      <div className="text-2xl font-bold ml-5">
+                        {shareCount ?? 0}
+                      </div>{" "}
                       <p className="text-xs text-muted-foreground">
                         +201 since last month
                       </p>
@@ -284,7 +342,8 @@ const AdminDashboard = () => {
                       <BarChart className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl font-bold">2%</div>
+                      <div className="text-2xl font-bold ml-5
+                      ">{clickCount ?? 0}</div>
                       <p className="text-xs text-muted-foreground">
                         +1.2% from last week
                       </p>

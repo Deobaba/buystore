@@ -44,7 +44,19 @@ const EditProduct = ({ id }: Props) => {
   React.useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch(`/api/products/${id}`);
+        const token = localStorage.getItem("authToken");
+
+        // Define headers with Authorization token
+        const headers = {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "", // Add token if available
+        };
+
+        const response = await fetch(`/api/products/${id}`, {
+          method: "GET",
+          headers,
+        });
+        // const response = await fetch(`/api/products/${id}`);
         if (!response.ok) {
           throw new Error("Failed to fetch product");
         }
@@ -100,7 +112,13 @@ const EditProduct = ({ id }: Props) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    const token = localStorage.getItem("authToken");
 
+    // Define headers with Authorization token
+    const headers = {
+      "Content-Type": "application/json",
+      Authorization: token ? `Bearer ${token}` : "", // Add token if available
+    };
     if (
       productName === "" ||
       description === "" ||
@@ -116,9 +134,7 @@ const EditProduct = ({ id }: Props) => {
     try {
       const response = await fetch(`/api/products/${id}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers,
         body: JSON.stringify({
           name: productName, // Ensure the backend expects the name field
           description,
@@ -253,7 +269,7 @@ const EditProduct = ({ id }: Props) => {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="additionalFeatures">Additional Features</Label>
+                <Label htmlFor="additionalFeatures">Additional Features (Add multiple features separated by comma)</Label>
                 <Textarea
                   id="additionalFeatures"
                   value={additionalFeatures}
