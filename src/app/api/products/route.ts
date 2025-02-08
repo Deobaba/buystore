@@ -4,32 +4,8 @@ import UserModel, { User } from "@/lib/user";
 import jwt from "jsonwebtoken";
 import dbConnect from "@/lib/mongoose";
 import Product from "@/lib/product";
-import { LRUCache } from 'lru-cache'
-
-// Initialize LRU cache
-export const cache = new LRUCache ({
-  max: 500, // Store up to 500 items
-  ttl: 600 * 10000 * 24, // Cache expiration time
-});
-
-
-export const authenticateUser = async (req: Request) => {
-  const authHeader = req.headers.get("authorization");
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return null;
-  }
-
-  const token = authHeader.split(" ")[1];
-
-  try {
-    const decoded : any = jwt.verify(token, process.env.JWT_SECRET!);
-    const user = await UserModel.findById(decoded.id).lean();
-    return user as User | null;
-  } catch (error) {
-    return null;
-  }
-}
-
+import { authenticateUser } from "@/lib/auth";
+import { cache } from "@/lib/cache";
 
 
 export async function POST(req: Request, res: NextResponse) {

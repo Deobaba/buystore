@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongoose";
 import Product, { IProduct } from "@/lib/product";
-import { LRUCache } from 'lru-cache'
-import { authenticateUser, cache } from "../route";
+import { authenticateUser } from "@/lib/auth";
+import { cache } from "@/lib/cache";
+
 
 
 export const dynamic = "force-dynamic"; // Prevent static optimization
