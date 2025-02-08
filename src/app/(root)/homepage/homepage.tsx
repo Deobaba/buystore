@@ -52,6 +52,29 @@ const Homepage = () => {
     { name: "Sports & Outdoors", icon: Dumbbell },
   ];
 
+   const handleBuyClick = async (product:IProduct) => {
+    try {
+      // ✅ Call the backend API before opening the external link
+      console.log("Product:", product);
+      const response = await fetch(`/api/referral/${product._id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          referralCode: product.referralCode, // Ensure you have this value
+          action: "click",
+        }),
+      });
+
+      if (!response.ok) {
+        console.error("Failed to update click count");
+      }
+    } catch (error) {
+      console.error("Error tracking buy click:", error);
+    }
+  };
+
   // React.useEffect(() => {
   //   const fetchProducts = async () => {
   //     try {
@@ -206,7 +229,10 @@ const Homepage = () => {
                             : `https://${product.externalLink}?referralCode=${product.referralCode}`,
                           "_blank"
                         );
+                      
+                        handleBuyClick(product); // Call your function last
                       }}
+                      
                     >
                       Buy
                     </Button>

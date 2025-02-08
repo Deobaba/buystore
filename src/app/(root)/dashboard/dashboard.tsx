@@ -64,6 +64,7 @@ const AdminDashboard = () => {
   const [analytics, setAnalytics] = React.useState<any>();
   const [shareCount, setShareCount] = React.useState<any>();
   const [clickCount, setClickCount] = React.useState<any>();
+  const [clickPercentage, setClickPercentage] = React.useState<any>();
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -188,6 +189,7 @@ const AdminDashboard = () => {
 
         setShareCount(data.shares.currentWeek); // ✅ Set only the current week's shares
         setClickCount(data.clicks.currentWeek);
+        setClickPercentage(data.clicks.percentageChange);
       } catch (err: any) {
         console.error("Error fetching share count:", err);
       } finally {
@@ -308,7 +310,7 @@ const AdminDashboard = () => {
                     <CardContent>
                       <div className="text-2xl ml-7 font-bold">{totalPage}</div>
                       <p className="text-xs text-muted-foreground">
-                        +15% from last month
+                        +15% from last week
                       </p>
                     </CardContent>
                   </Card>
@@ -327,7 +329,7 @@ const AdminDashboard = () => {
                         {shareCount ?? 0}
                       </div>{" "}
                       <p className="text-xs text-muted-foreground">
-                        +201 since last month
+                        +201 since last week
                       </p>
                     </CardContent>
                   </Card>
@@ -345,7 +347,7 @@ const AdminDashboard = () => {
                       <div className="text-2xl font-bold ml-5
                       ">{clickCount ?? 0}</div>
                       <p className="text-xs text-muted-foreground">
-                        +1.2% from last week
+                        {clickPercentage}% from last week
                       </p>
                     </CardContent>
                   </Card>
