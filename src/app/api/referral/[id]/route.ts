@@ -28,7 +28,7 @@ export async function POST(
     }
 
     // Determine the field to update based on action
-    const updateField = action === "click" ? { clicks: 1 } : { shares: 1 };
+    const updateField = action === "click" ? { clicks: 1 } : { share: 1 };
 
     // Find the product and increment the respective field
     const updatedProduct = await Product.findOneAndUpdate(

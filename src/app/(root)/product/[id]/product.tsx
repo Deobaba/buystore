@@ -31,25 +31,8 @@ const ProductPage = ({ id }: Props) => {
   const [referralCode, setreferralCode] = useState("");
   const shareUrl = typeof window !== "undefined" ? window.location.href : "";
 
-  //=========handle sharing ============
-  // const handleShare = async () => {
-  //   if (navigator.share) {
-  //     try {
-  //       await navigator.share({
-  //         title: "Check this out!",
-  //         text: "I found this interesting:",
-  //         url: shareUrl,
-  //       });
-  //       setShared(true);
-  //     } catch (error) {
-  //       console.error("Error sharing:", error);
-  //     }
-  //   } else {
-  //     console.warn("Web Share API not supported");
-  //   }
-  // };
 
-  const handleShare = async () => {
+  const handleShare = async (product:IProduct) => {
     if (navigator.share) {
       try {
         await navigator.share({
@@ -67,7 +50,7 @@ const ProductPage = ({ id }: Props) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            referralCode, // Ensure you have this value
+            referralCode:product.referralCode, // Ensure you have this value
             action: "share",
           }),
         });
@@ -195,7 +178,7 @@ const ProductPage = ({ id }: Props) => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="bg-white shadow-sm">
+      <header className="shadow-sm sticky top-0 bg-white z-50">
         <div className="container mx-auto px-4 py-4">
           <Link
             href="/"
@@ -229,7 +212,7 @@ const ProductPage = ({ id }: Props) => {
               {product.images.map((image, index) => (
                 <button
                   key={index}
-                  onClick={() => setCurrentImageIndex(index)}
+                  onClick={() => handleThumbnailClick(index)}
                   className={`w-16 h-16 rounded-md overflow-hidden border-2 ${
                     index === currentImageIndex
                       ? "border-[#350962]"
@@ -249,25 +232,7 @@ const ProductPage = ({ id }: Props) => {
             <h1 className="text-3xl font-bold mb-4">{product.name}</h1>
             <div className="flex items-center mb-4">
               <div className="flex items-center mr-2">
-                {/* {[...Array(5)].map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`h-5 w-5 ${
-                      i < Math.floor(product.rating)
-                        ? "text-yellow-400 fill-current"
-                        : "text-gray-300"
-                    }`}
-                  />
-                ))} */}
-
-                {/* {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="text-gray-300 h-5 w-5" />
-                ))} */}
               </div>
-              {/* <span className="text-sm text-gray-600">
-                {product.rating} ({product.reviews} reviews)
-              </span> */}
-              {/* <span className="text-sm text-gray-600">reviews</span> */}
             </div>
             <div className="flex flex-row">
               <p className="text-xl font-bold mb-2">₦</p>
@@ -283,7 +248,7 @@ const ProductPage = ({ id }: Props) => {
               Buy
             </Button>
             <Button
-              onClick={handleShare}
+              onClick={()=>handleShare(product)}
               variant="outline"
               size="lg"
               className="w-full mb-6"

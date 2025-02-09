@@ -61,10 +61,10 @@ const AdminDashboard = () => {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [showModal, setShowModal] = useState(false);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
-  const [analytics, setAnalytics] = React.useState<any>();
   const [shareCount, setShareCount] = React.useState<any>();
   const [clickCount, setClickCount] = React.useState<any>();
   const [clickPercentage, setClickPercentage] = React.useState<any>();
+  const [sharePercentage, setSharePercentage] = React.useState<any>();
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -101,12 +101,15 @@ const AdminDashboard = () => {
       if (!analytics.ok) {
         throw new Error("Failed to fetch analytics");
       }
-      console.log(await analytics.json());
+      const counts = await analytics.json();
       const data = await response.json();
       setFeaturedProducts(data.products);
       setPagination(data.pagination);
       setTotalPage(data.pagination.totalItems);
-      setAnalytics(await analytics.json());
+      setShareCount(counts.shares.currentWeek); // ✅ Set only the current week's shares
+      setClickCount(counts.clicks.currentWeek);
+      setClickPercentage(counts.clicks.percentageChange);
+      setSharePercentage(counts.shares.percentageChange);
     } catch (error) {
       console.error("Error fetching products:", error);
     } finally {
@@ -166,39 +169,6 @@ const AdminDashboard = () => {
   const handlePageChange = (newPage: number) => {
     setCurrentPage(newPage);
   };
-
-  // ========= getting share count ==========
-  React.useEffect(() => {
-    const fetchShareCount = async () => {
-      try {
-        const token = localStorage.getItem("authToken");
-
-        // Define headers with Authorization token
-        const headers = {
-          "Content-Type": "application/json",
-          Authorization: token ? `Bearer ${token}` : "",
-        };
-
-        const res = await fetch(`/api/referral`, {
-          method: "GET",
-          headers,
-        });
-
-        const data = await res.json(); // ✅ Parse JSON response
-        console.log(data);
-
-        setShareCount(data.shares.currentWeek); // ✅ Set only the current week's shares
-        setClickCount(data.clicks.currentWeek);
-        setClickPercentage(data.clicks.percentageChange);
-      } catch (err: any) {
-        console.error("Error fetching share count:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchShareCount();
-  }, []); // ✅ Add dependency array to avoid infinite calls
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -308,7 +278,7 @@ const AdminDashboard = () => {
                       <Package className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                      <div className="text-2xl ml-7 font-bold">{totalPage}</div>
+                      <div className="text-2xl ml-7 font-bold">{totalPage ?? 0}</div>
                       <p className="text-xs text-muted-foreground">
                         +15% from last week
                       </p>
@@ -329,7 +299,7 @@ const AdminDashboard = () => {
                         {shareCount ?? 0}
                       </div>{" "}
                       <p className="text-xs text-muted-foreground">
-                        +201 since last week
+                        {sharePercentage}% since last week
                       </p>
                     </CardContent>
                   </Card>

@@ -55,7 +55,6 @@ const Homepage = () => {
    const handleBuyClick = async (product:IProduct) => {
     try {
       // ✅ Call the backend API before opening the external link
-      console.log("Product:", product);
       const response = await fetch(`/api/referral/${product._id}`, {
         method: "POST",
         headers: {
@@ -75,25 +74,6 @@ const Homepage = () => {
     }
   };
 
-  // React.useEffect(() => {
-  //   const fetchProducts = async () => {
-  //     try {
-  //       const response = await fetch("/api/products");
-  //       if (!response.ok) {
-  //         throw new Error("Failed to fetch products");
-  //       }
-
-  //       const data = await response.json();
-  //       setFeaturedProducts(data.products);
-  //       setLoading(false);
-  //     } catch (error) {
-  //       console.error("Error fetching products:", error);
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchProducts();
-  // }, []);
 
   const fetchProducts = async () => {
     setLoading(true);
@@ -109,8 +89,7 @@ const Homepage = () => {
       if (!response.ok) {
         throw new Error("Failed to fetch products");
       }
-      // const data = await response.json(); // Fetch the entire response object
-      // const product = data.product; // Extract the product data from the response
+
       const data = await response.json();
       setFeaturedProducts(data.products);
       setPagination(data.pagination);
@@ -123,7 +102,7 @@ const Homepage = () => {
 
   React.useEffect(() => {
     fetchProducts();
-  }, [selectedCategory, currentPage]);
+  }, [selectedCategory, currentPage, searchQuery]);
 
   const handleCategoryClick = (category: string | null) => {
     setSelectedCategory(category);
@@ -146,7 +125,7 @@ const Homepage = () => {
               height={50}
               className="mr-3"
             />{" "}
-            <span className="text-2xl font-bold text-[#350962]">
+            <span className="text-2xl font-bold text-[rgb(53,9,98)]">
               Buy Value Store
             </span>
           </div>
@@ -192,81 +171,53 @@ const Homepage = () => {
       </header>
 
       <main className="flex-grow container mx-auto px-4 py-8">
-        <section className="mb-12">
+      <section className="mb-12">
           <h2 className="text-xl font-bold mb-4">Featured Products</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {featuredProducts.map((product, index) => (
-              <Link href={`/product/${product._id}`}>
-                <Card key={index}>
-                  <CardContent className="p-4">
-                    <img
+              <Card key={index}>
+                <CardContent className="p-4">
+                  {/* Move Link inside, only wrapping image & title */}
+                  <Link href={`/product/${product._id}`} className="block">
+                  <Image
                       src={product.images[0]}
                       alt={product.name}
+                      width={500}  // Adjust width as needed
+                      height={192} // Adjust height as needed
                       className="w-full h-48 object-cover mb-4 rounded"
                     />
                     <CardTitle>{product.name}</CardTitle>
-                    <p className="text-sm text-gray-600 mt-2">
-                      {product.description}
-                    </p>
-                    <p className="font-bold text-lg mt-2">{product.price}</p>
-                    {/* <p className="text-sm text-gray-500 mt-1">
-                      Seller: {product.sellerInfo}
-                    </p> */}
-                    <p className="text-sm text-gray-600 mt-2">
-                      {product.description.length > 30
-                        ? `${product.description.substring(0, 50)}...`
-                        : product.description}
-                    </p>
-                  </CardContent>
-                  <CardFooter>
-                    <Button
-                      className="w-[100px] bg-[#350962] text-[#ffffff]"
-                      onClick={(e) => {
-                        e.stopPropagation(); // Prevent navigation to product details
-                        window.open(
-                          product.externalLink.startsWith("http")
-                            ? `${product.externalLink}?referralCode=${product.referralCode}`
-                            : `https://${product.externalLink}?referralCode=${product.referralCode}`,
-                          "_blank"
-                        );
-                      
-                        handleBuyClick(product); // Call your function last
-                      }}
-                      
-                    >
-                      Buy
-                    </Button>
-                    {/* <Link
-                      href={
+                  
+                  <p className="text-sm text-gray-600 mt-2">
+                    {product.description.length > 30
+                      ? `${product.description.substring(0, 50)}...`
+                      : product.description}
+                  </p>
+                  <p className="font-bold text-lg mt-2">{product.price}</p>
+                  </Link>
+                </CardContent>
+                <CardFooter>
+                  <Button
+                    className="w-[100px] bg-[#350962] text-[#ffffff]"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Stop navigation
+                      window.open(
                         product.externalLink.startsWith("http")
-                          ? product.externalLink
-                          : `https://${product.externalLink}`
-                      }
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="no-underline"
-                    >
-                      <Button
-                        className="w-[100px] bg-[#350962] text-[#ffffff]"
-                        onClick={(e) => {
-                          e.stopPropagation(); // Prevent navigation to product details
-                          window.open(
-                            product.externalLink.startsWith("http")
-                              ? product.externalLink
-                              : `https://${product.externalLink}`,
-                            "_blank"
-                          );
-                        }}
-                      >
-                        Buy
-                      </Button>
-                    </Link> */}
-                  </CardFooter>
-                </Card>
-              </Link>
+                          ? `${product.externalLink}?referralCode=${product.referralCode}`
+                          : `https://${product.externalLink}?referralCode=${product.referralCode}`,
+                        "_blank"
+                      );
+                      handleBuyClick(product); // Call function
+                    }}
+                  >
+                    Buy
+                  </Button>
+                </CardFooter>
+              </Card>
             ))}
           </div>
         </section>
+
 
         <section className="mt-4 flex flex-col justify-end items-end">
           {/* <h2 className="text-lg font-bold mb-4">Pagination</h2> */}
@@ -287,27 +238,6 @@ const Homepage = () => {
             </div>
           </div>
         </section>
-
-        {/* <section>
-          <h2 className="text-xl font-bold mb-6">Shop by Category</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
-            {categories.map((category, index) => (
-              <Card
-                key={index}
-                className="group hover:shadow-lg transition-shadow duration-300 cursor-pointer"
-              >
-                <CardContent className="p-6 flex flex-col items-center text-center">
-                  <div className="mb-4 p-4 bg-purple-100 rounded-full group-hover:bg-purple-200 transition-colors duration-300">
-                    <category.icon className="h-8 w-8 text-[#350962]" />
-                  </div>
-                  <CardTitle className="text-lg group-hover:text-[#350962] transition-colors duration-300">
-                    {category.name}
-                  </CardTitle>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </section> */}
 
         <section>
           <h2 className="text-xl font-bold mb-6">Shop by Category</h2>

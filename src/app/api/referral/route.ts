@@ -1,20 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongoose";
 import Product from "@/lib/product";
+import { getISOWeek } from "@/lib/utils";
 
 // Function to get the ISO week number
-function getISOWeek(date: Date): number {
-  const tempDate = new Date(date);
-  tempDate.setHours(0, 0, 0, 0);
-  tempDate.setDate(tempDate.getDate() + 3 - ((tempDate.getDay() + 6) % 7));
-  const week1 = new Date(tempDate.getFullYear(), 0, 4);
-  return (
-    1 +
-    Math.round(
-      ((tempDate.getTime() - week1.getTime()) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) / 7
-    )
-  );
-}
+
 
 export async function GET() {
   await dbConnect();
@@ -41,7 +31,7 @@ export async function GET() {
             year: { $isoWeekYear: "$updatedAt" }, // Include year for cross-year weeks
           },
           totalClicks: { $sum: "$clicks" }, // Sum all clicks in the week
-          totalShares: { $sum: "$shares" }, // Sum all shares in the week
+          totalShares: { $sum: "$share" }, // Sum all shares in the week
         },
       },
       { $sort: { "_id.year": -1, "_id.week": -1 } }, // Sort by most recent week
