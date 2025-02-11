@@ -71,6 +71,19 @@ export async function GET() {
           : 0
         : ((currentWeekShares - lastWeekShares) / lastWeekShares) * 100;
 
+        console.log(  {
+          clicks: {
+            currentWeek: currentWeekClicks,
+            lastWeek: lastWeekClicks,
+            percentageChange: clickChange,
+          },
+          shares: {
+            currentWeek: currentWeekShares,
+            lastWeek: lastWeekShares,
+            percentageChange: shareChange,
+          },
+        })
+
     return NextResponse.json(
       {
         clicks: {

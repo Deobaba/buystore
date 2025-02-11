@@ -44,6 +44,8 @@ export async function POST(
       );
     }
 
+    console.log(updatedProduct);
+
     return NextResponse.json(
       { message: `${action} count updated successfully`, product: updatedProduct },
       { status: 200 }

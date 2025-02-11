@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { uploadToCloudinary, uploadToS3 } from "@/utils/upload";
 import UserModel, { User } from "@/lib/user";
-import jwt from "jsonwebtoken";
 import dbConnect from "@/lib/mongoose";
 import Product from "@/lib/product";
 import { authenticateUser } from "@/lib/auth";
@@ -76,7 +75,7 @@ try {
 }  
 const plainProduct = product.toObject();
 
-cache.clear(); // Clear cache to reflect the new product
+ cache.clear(); // Clear cache to reflect the new product
 
 return NextResponse.json(plainProduct, { status: 201 });
   } catch (error : any) {
