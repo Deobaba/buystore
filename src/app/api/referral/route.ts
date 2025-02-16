@@ -3,9 +3,6 @@ import dbConnect from "@/lib/mongoose";
 import Product from "@/lib/product";
 import { getISOWeek } from "@/lib/utils";
 
-// Function to get the ISO week number
-
-
 export async function GET() {
   await dbConnect();
 
